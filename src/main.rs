@@ -44,7 +44,7 @@ fn print_semesters(semesters: &[Semester]) {
     for (i, semester) in semesters.iter().enumerate().rev() {
         println!("{:2}: {}.{}", i, semester.year, semester.semester);
     }
-    println!("Choose a semester:");
+    print!("Choose a semester: ");
 }
 
 fn print_subject(subject: Subject) {
