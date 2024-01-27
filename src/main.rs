@@ -50,12 +50,21 @@ fn print_semesters(semesters: &[Semester]) {
 fn print_subject(subject: Subject) {
     println!("{}: {}", subject.subject_name, subject.total_score);
     for evaluation_project in subject.evaluation_projects {
-        println!(
-            "{}: {} ({}%)",
-            evaluation_project.evaluation_project_e_name,
-            evaluation_project.score,
-            evaluation_project.proportion,
-        );
+        if !evaluation_project.score_is_null {
+            println!(
+                "{}: {} ({}%)",
+                evaluation_project.evaluation_project_e_name,
+                evaluation_project.score,
+                evaluation_project.proportion,
+            );
+        } else {
+            println!(
+                "{}: {} ({}% Not Counted)",
+                evaluation_project.evaluation_project_e_name,
+                evaluation_project.score,
+                evaluation_project.proportion,
+            );
+        }
     }
     println!();
 }
