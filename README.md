@@ -4,6 +4,9 @@ tls-xb is a cli tool that fetches scores from [Tsinglan Xiaobao](https://tsingla
 
 ## Building
 
+tls-xb is written in Rust,
+so a working [Rust installation](https://www.rust-lang.org/) will be needed.
+
 ``` sh
 $ git clone https://github.com/hey2022/tls-xb
 $ cd tls-xb
