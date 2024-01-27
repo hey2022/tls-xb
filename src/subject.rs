@@ -27,8 +27,7 @@ pub struct Subject {
 
 pub async fn get_subject(client: &reqwest::Client, semester_id: u64, subject_id: u64) -> Subject {
     let subject_detail = get_subject_detail(&client, semester_id, subject_id).await;
-    let evaluation_projects =
-        get_subject_evaluation_projects(&client, semester_id, &subject_detail).await;
+    let evaluation_projects = get_subject_evaluation_projects(&client, &subject_detail).await;
     let subject = Subject {
         subject_name: subject_detail.subject_name,
         subject_id: subject_detail.subject_id,
@@ -45,6 +44,7 @@ struct SubjectDetail {
     subject_name: String,
     class_id: u64,
     subject_id: u64,
+    school_semester_id: u64,
 }
 
 async fn get_subject_detail(
@@ -88,12 +88,11 @@ pub struct EvaluationProject {
 
 async fn get_subject_evaluation_projects(
     client: &reqwest::Client,
-    semester_id: u64,
     subject_detail: &SubjectDetail,
 ) -> Vec<EvaluationProject> {
     let response: serde_json::Value = client
         .get(format!("https://tsinglanstudent.schoolis.cn/api/DynamicScore/GetDynamicScoreDetail?classId={}&subjectId={}&semesterId={}",
-                     subject_detail.class_id, subject_detail.subject_id, semester_id))
+                     subject_detail.class_id, subject_detail.subject_id, subject_detail.school_semester_id))
         .send()
         .await.unwrap()
         .json()
