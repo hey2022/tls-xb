@@ -48,6 +48,9 @@ fn print_semesters(semesters: &[Semester]) {
 }
 
 fn print_subject(subject: Subject) {
+    if subject.total_score.is_nan() {
+        return;
+    }
     println!("{}: {}", subject.subject_name, subject.total_score);
     for evaluation_project in subject.evaluation_projects {
         if !evaluation_project.score_is_null {
