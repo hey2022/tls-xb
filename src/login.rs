@@ -31,8 +31,10 @@ struct Payload {
 }
 
 async fn get_payload() -> Payload {
-    let config_str = fs::read_to_string("./config.toml").expect("config.toml should be located at the project root");
-    let config: Config = toml::from_str(&config_str).expect("config.toml should contain name and password key/value pairs");
+    let config_str = fs::read_to_string("./config.toml")
+        .expect("config.toml should be located at the project root");
+    let config: Config = toml::from_str(&config_str)
+        .expect("config.toml should contain name and password key/value pairs");
     let timestamp = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap()

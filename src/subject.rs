@@ -9,9 +9,7 @@ pub async fn get_subject_ids(client: &reqwest::Client, semester_id: u64) -> Vec<
         .json()
         .await
         .unwrap();
-    let subjects = response["data"]
-        .as_array()
-        .expect("Failed to get subjects");
+    let subjects = response["data"].as_array().expect("Failed to get subjects");
     let ids: Vec<u64> = subjects
         .iter()
         .filter_map(|subject| subject["id"].as_u64())
