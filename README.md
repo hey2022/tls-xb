@@ -13,7 +13,8 @@ $ cargo build --release
 
 ## Configuration
 
-Create a config.toml file containing `name` and `password` key/value pairs.
+Create config.toml in the project root containing
+`name` and `password` key/value pairs.
 
 For example:
 
