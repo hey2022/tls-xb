@@ -81,9 +81,11 @@ async fn get_subject_detail(
 #[serde(rename_all = "camelCase")]
 pub struct EvaluationProject {
     pub evaluation_project_e_name: String,
-    pub score_is_null: bool,
     pub proportion: f64,
     pub score: f64,
+    pub score_level: String,
+    pub gpa: f64,
+    pub score_is_null: bool,
 }
 
 async fn get_subject_evaluation_projects(

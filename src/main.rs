@@ -55,16 +55,11 @@ fn print_subject(subject: Subject) {
     for evaluation_project in subject.evaluation_projects {
         if !evaluation_project.score_is_null {
             println!(
-                "{}: {} ({}%)",
+                "{}: {} / {} / {} ({}%)",
                 evaluation_project.evaluation_project_e_name,
                 evaluation_project.score,
-                evaluation_project.proportion,
-            );
-        } else {
-            println!(
-                "{}: {} ({}% Not Counted)",
-                evaluation_project.evaluation_project_e_name,
-                evaluation_project.score,
+                evaluation_project.score_level,
+                evaluation_project.gpa,
                 evaluation_project.proportion,
             );
         }
