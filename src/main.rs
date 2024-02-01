@@ -3,10 +3,10 @@ mod login;
 mod semester;
 mod subject;
 
-use crate::gpa::get_gpa;
-use crate::login::login;
-use crate::semester::*;
-use crate::subject::*;
+use gpa::get_gpa;
+use login::login;
+use semester::*;
+use subject::*;
 use std::sync::Arc;
 use text_io::read;
 
