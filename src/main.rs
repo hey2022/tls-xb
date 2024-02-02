@@ -1,18 +1,21 @@
+mod config;
 mod gpa;
 mod login;
 mod semester;
 mod subject;
 
+use config::*;
 use gpa::get_gpa;
 use login::login;
 use semester::*;
-use subject::*;
 use std::sync::Arc;
+use subject::*;
 use text_io::read;
 
 #[tokio::main]
 async fn main() {
-    let client = login().await;
+    let config = get_config().await;
+    let client = login(&config).await;
 
     let semesters = get_semesters(&client).await;
     print_semesters(&semesters);

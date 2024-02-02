@@ -1,13 +1,13 @@
-use serde::{Deserialize, Serialize};
-use std::fs;
+use super::config::Config;
+use serde::Serialize;
 use std::time::SystemTime;
 
-pub async fn login() -> reqwest::Client {
+pub async fn login(config: &Config) -> reqwest::Client {
     let client = reqwest::Client::builder()
         .cookie_store(true)
         .build()
         .unwrap();
-    let payload = get_payload().await;
+    let payload = get_payload(config.name.clone(), config.password.clone()).await;
     client
         .post("https://tsinglanstudent.schoolis.cn/api/MemberShip/Login")
         .json(&payload)
@@ -17,12 +17,6 @@ pub async fn login() -> reqwest::Client {
     client
 }
 
-#[derive(Deserialize)]
-struct Config {
-    name: String,
-    password: String,
-}
-
 #[derive(Serialize)]
 struct Payload {
     name: String,
@@ -30,18 +24,14 @@ struct Payload {
     timestamp: u64,
 }
 
-async fn get_payload() -> Payload {
-    let config_str = fs::read_to_string("./config.toml")
-        .expect("config.toml should be located at the project root");
-    let config: Config = toml::from_str(&config_str)
-        .expect("config.toml should contain name and password key/value pairs");
+async fn get_payload(name: String, password: String) -> Payload {
     let timestamp = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap()
         .as_secs();
     let payload = Payload {
-        name: config.name,
-        password: get_hashed_password(config.password, timestamp).await,
+        name,
+        password: get_hashed_password(password, timestamp).await,
         timestamp,
     };
     payload
