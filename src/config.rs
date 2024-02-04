@@ -1,16 +1,19 @@
-use serde::Deserialize;
-use std::fs;
+use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize, Default, Debug)]
 pub struct Config {
     pub name: String,
     pub password: String,
 }
 
 pub async fn get_config() -> Config {
-    let config_str = fs::read_to_string("./config.toml")
-        .expect("config.toml should be located at the project root");
-    let config: Config = toml::from_str(&config_str)
-        .expect("config.toml should contain name and password key/value pairs");
+    println!(
+        "Getting config.toml from {}...",
+        confy::get_configuration_file_path("tls", "config")
+            .unwrap()
+            .to_str()
+            .unwrap()
+    );
+    let config: Config = confy::load("tls-xb", "config").unwrap();
     config
 }
