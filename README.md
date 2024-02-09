@@ -15,7 +15,7 @@ cd tls-xb
 cargo install --path .
 ```
 
-Make sure `~/.cargo/bin` is in your PATH then run `tls-xb` in your terminal.
+Make sure `~/.cargo/bin` is in your PATH  
 
 ### Building
 
@@ -25,13 +25,7 @@ cd tls-xb
 cargo build --release
 ```
 
-## Configuration
+### Usage
 
-Create a config.toml file with the `name` and `password` key/value pairs.
-
-For example:
-
-``` toml
-name = "your-name"
-password = "your-password"
-```
+In your terminal, run `tls-xb login` to generate your login keys,
+then run `tls-xb` to start the program.
