@@ -1,21 +1,43 @@
 mod config;
 mod gpa;
-mod login;
+mod client;
 mod semester;
 mod subject;
 
+use clap::{Parser, Subcommand};
 use config::*;
 use gpa::get_gpa;
-use login::login;
 use semester::*;
 use std::sync::Arc;
 use subject::*;
 use text_io::read;
 
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+#[command(propagate_version = true)]
+struct Cli {
+    #[command(subcommand)]
+    command: Option<Commands>,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    Login,
+}
+
 #[tokio::main]
 async fn main() {
-    let config = get_config().await;
-    let client = login(&config).await;
+    let cli = Cli::parse();
+    if let Some(command) = cli.command {
+        match command {
+            Commands::Login => {
+                login();
+                std::process::exit(1);
+            }
+        }
+    }
+    let config = get_config();
+    let client = client::login(&config).await;
 
     let semesters = get_semesters(&client).await;
     print_semesters(&semesters);
