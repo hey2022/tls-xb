@@ -66,10 +66,14 @@ async fn main() {
 }
 
 fn print_semesters(semesters: &[Semester]) {
+    let mut current_semester = 0;
     for (i, semester) in semesters.iter().enumerate().rev() {
         println!("{:2}: {}.{}", i, semester.year, semester.semester);
+        if semester.is_now == true {
+            current_semester = i;
+        }
     }
-    print!("Choose a semester: ");
+    print!("Choose a semester [{}]: ", current_semester);
 }
 
 fn print_subject(subject: Subject) {

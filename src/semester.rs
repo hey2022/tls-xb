@@ -1,10 +1,12 @@
 use serde::Deserialize;
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Semester {
     pub id: u64,
     pub year: u64,
     pub semester: u64,
+    pub is_now: bool,
 }
 
 pub async fn get_semesters(client: &reqwest::Client) -> Vec<Semester> {
