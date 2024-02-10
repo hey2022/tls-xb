@@ -26,16 +26,16 @@ pub struct Subject {
 }
 
 pub async fn get_subject(client: &reqwest::Client, semester_id: u64, subject_id: u64) -> Subject {
-    let subject_detail = get_subject_detail(&client, semester_id, subject_id).await;
-    let evaluation_projects = get_subject_evaluation_projects(&client, &subject_detail).await;
-    let subject = Subject {
+    let subject_detail = get_subject_detail(client, semester_id, subject_id).await;
+    let evaluation_projects = get_subject_evaluation_projects(client, &subject_detail).await;
+    
+    Subject {
         subject_name: subject_detail.subject_name,
         subject_id: subject_detail.subject_id,
         class_id: subject_detail.class_id,
         total_score: get_subject_score(&evaluation_projects).await,
         evaluation_projects,
-    };
-    subject
+    }
 }
 
 #[derive(Deserialize)]
@@ -114,6 +114,6 @@ async fn get_subject_score(evauluation_projects: &[EvaluationProject]) -> f64 {
             total_proportion += evaluation_project.proportion;
         }
     }
-    let subject_score = total_score / total_proportion;
-    subject_score
+    
+    total_score / total_proportion
 }

@@ -69,7 +69,7 @@ fn print_semesters(semesters: &[Semester]) {
     let mut current_semester = 0;
     for (i, semester) in semesters.iter().enumerate().rev() {
         println!("{:2}: {}.{}", i, semester.year, semester.semester);
-        if semester.is_now == true {
+        if semester.is_now {
             current_semester = i;
         }
     }
