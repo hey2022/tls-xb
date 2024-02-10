@@ -30,9 +30,9 @@ pub fn login() {
 
 fn get_hashed_password(password: String, timestamp: u64) -> String {
     let timestamp = timestamp.to_string();
-    let hash = format!("{:x}", md5::compute(password)).to_uppercase();
+    let hash = format!("{:X}", md5::compute(password));
     let combined = hash + &timestamp;
-    let combined_hash = format!("{:x}", md5::compute(combined)).to_uppercase();
+    let combined_hash = format!("{:X}", md5::compute(combined));
     combined_hash
 }
 
