@@ -32,7 +32,7 @@ async fn main() {
         match command {
             Commands::Login => {
                 login();
-                std::process::exit(1);
+                std::process::exit(0);
             }
         }
     }
