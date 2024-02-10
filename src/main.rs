@@ -1,6 +1,6 @@
+mod client;
 mod config;
 mod gpa;
-mod client;
 mod semester;
 mod subject;
 
