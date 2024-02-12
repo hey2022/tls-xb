@@ -18,6 +18,6 @@ pub async fn get_semesters(client: &reqwest::Client) -> Vec<Semester> {
         .json()
         .await
         .unwrap();
-    
+
     serde_json::from_value(response["data"].clone()).expect("Failed to get semesters")
 }

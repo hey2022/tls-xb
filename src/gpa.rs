@@ -10,6 +10,6 @@ pub async fn get_gpa(client: &reqwest::Client, semester_id: u64) -> f64 {
         .json()
         .await
         .unwrap();
-    
+
     response["data"].as_f64().unwrap_or(f64::NAN)
 }
