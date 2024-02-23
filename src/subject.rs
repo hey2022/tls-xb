@@ -19,8 +19,6 @@ pub async fn get_subject_ids(client: &reqwest::Client, semester_id: u64) -> Vec<
 
 pub struct Subject {
     pub subject_name: String,
-    subject_id: u64,
-    class_id: u64,
     pub total_score: f64,
     pub evaluation_projects: Vec<EvaluationProject>,
 }
@@ -31,8 +29,6 @@ pub async fn get_subject(client: &reqwest::Client, semester_id: u64, subject_id:
 
     Subject {
         subject_name: subject_detail.subject_name,
-        subject_id: subject_detail.subject_id,
-        class_id: subject_detail.class_id,
         total_score: get_subject_score(&evaluation_projects).await,
         evaluation_projects,
     }
