@@ -34,7 +34,7 @@ pub async fn login(config: &Config) -> reqwest::Client {
         match state {
             1180038 => panic!("Captcha failed"),
             1010076 => panic!("Invalid username or password, try running 'tls-xb login'"),
-            _ => panic!(),
+            _ => panic!("Unknown error state: {}", state),
         }
     }
     client
