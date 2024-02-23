@@ -27,9 +27,15 @@ pub async fn login(config: &Config) -> reqwest::Client {
         .json()
         .await
         .unwrap();
-    if response["msg"] != serde_json::value::Value::Null {
-        println!("Failed to login, run `tls-xb login` to regenerate keys.");
-        std::process::exit(1);
+
+    let state = serde_json::from_value(response["state"].clone()).unwrap();
+    if state != 0 {
+        println!("{}", response["msg"]);
+        match state {
+            1180038 => panic!("Captcha failed"),
+            1010076 => panic!("Invalid username or password, try running 'tls-xb login'"),
+            _ => panic!(),
+        }
     }
     client
 }
