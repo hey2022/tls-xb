@@ -8,9 +8,9 @@ use clap::{Parser, Subcommand};
 use config::*;
 use gpa::get_gpa;
 use semester::*;
+use std::io::Write;
 use std::sync::Arc;
 use subject::*;
-use text_io::read;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -40,9 +40,7 @@ async fn main() {
     let client = client::login(&config).await;
 
     let semesters = get_semesters(&client).await;
-    print_semesters(&semesters);
-    let i: usize = read!();
-    let semester_id = semesters[i].id;
+    let semester_id = select_semester(&semesters);
 
     let subject_ids = get_subject_ids(&client, semester_id).await;
     let mut handles = Vec::new();
@@ -65,7 +63,7 @@ async fn main() {
     println!("GPA: {}", gpa);
 }
 
-fn print_semesters(semesters: &[Semester]) {
+fn select_semester(semesters: &[Semester]) -> u64 {
     let mut current_semester = 0;
     for (i, semester) in semesters.iter().enumerate().rev() {
         println!("{:2}: {}.{}", i, semester.year, semester.semester);
@@ -74,6 +72,15 @@ fn print_semesters(semesters: &[Semester]) {
         }
     }
     print!("Choose a semester [{}]: ", current_semester);
+    std::io::stdout().flush().unwrap();
+    let mut input = String::new();
+    std::io::stdin()
+        .read_line(&mut input)
+        .expect("Failed to read line");
+    if input != "\n" {
+        current_semester = input.trim().parse().expect("Input not an integer");
+    }
+    semesters[current_semester].id
 }
 
 fn print_subject(subject: Subject) {
