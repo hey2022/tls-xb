@@ -7,6 +7,7 @@ edition = "2021"
 base64 = "0.21.7"
 clap = { version = "4.5.0", features = ["derive"] }
 confy = "0.6.0"
+image = "0.24.9"
 itertools = "0.12.1"
 md5 = "0.7.0"
 reqwest = { version = "0.11.24", features = ["json", "cookies"] }
