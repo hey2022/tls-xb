@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use serde::Deserialize;
 
 pub async fn get_subject_ids(client: &reqwest::Client, semester_id: u64) -> Vec<u64> {
@@ -13,6 +14,7 @@ pub async fn get_subject_ids(client: &reqwest::Client, semester_id: u64) -> Vec<
     let ids: Vec<u64> = subjects
         .iter()
         .filter_map(|subject| subject["id"].as_u64())
+        .unique()
         .collect();
     ids
 }
