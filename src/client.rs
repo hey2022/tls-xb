@@ -68,6 +68,7 @@ pub async fn get_captcha(client: &reqwest::Client) -> String {
         image::load(Cursor::new(decoded_captcha), ImageFormat::Png).expect("Failed to load image");
     let image = DynamicImage::ImageRgba8(image.to_rgba8());
     let conf = viuer::Config::default();
+    print!("\x1B[2J"); // clear terminal screen
     viuer::print(&image, &conf).expect("Failed to print image");
 
     print!("Captcha: ");
