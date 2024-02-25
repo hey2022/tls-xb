@@ -1,3 +1,88 @@
+use crate::subject::{Subject, SubjectDetail};
+use core::fmt;
+use serde::Deserialize;
+use std::collections::HashMap;
+
+#[derive(Eq, PartialEq, Hash, Clone)]
+pub enum ScoreMappingId {
+    Weighted,
+    NonWeighted,
+}
+
+impl fmt::Display for ScoreMappingId {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ScoreMappingId::Weighted => write!(f, "Weighted"),
+            ScoreMappingId::NonWeighted => write!(f, "Non-Weighted"),
+        }
+    }
+}
+
+#[derive(Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ScoreMappingConfig {
+    display_name: String,
+    min_value: f64,
+    max_value: f64,
+    gpa: f64,
+}
+
+pub fn default_score_mapping_lists() -> HashMap<ScoreMappingId, Vec<ScoreMappingConfig>> {
+    let mut score_mapping_list = HashMap::new();
+    let score_mapping_configs: serde_json::Value =
+        serde_json::from_str(include_str!("score_mapping_configs.json")).unwrap();
+    let weighted_mapping_list: Vec<ScoreMappingConfig> =
+        serde_json::from_value(score_mapping_configs["weighted"].clone()).unwrap();
+    let non_weighted_mapping_list: Vec<ScoreMappingConfig> =
+        serde_json::from_value(score_mapping_configs["non-weighted"].clone()).unwrap();
+    score_mapping_list.insert(ScoreMappingId::NonWeighted, non_weighted_mapping_list);
+    score_mapping_list.insert(ScoreMappingId::Weighted, weighted_mapping_list);
+    score_mapping_list
+}
+
+pub fn get_score_mapping_list_id(subject_detail: &SubjectDetail) -> ScoreMappingId {
+    if subject_detail.subject_name.contains("AP") || subject_detail.subject_name.contains("A Level")
+    {
+        return ScoreMappingId::Weighted;
+    }
+    ScoreMappingId::NonWeighted
+}
+
+pub fn gpa_from_score(total_score: f64, score_mapping_list: &[ScoreMappingConfig]) -> f64 {
+    let total_score = (total_score * 10.0).round() / 10.0;
+    for config in score_mapping_list.iter() {
+        if config.min_value <= total_score && config.max_value >= total_score {
+            return config.gpa;
+        }
+    }
+    f64::NAN
+}
+
+pub fn score_level_from_score(
+    total_score: f64,
+    score_mapping_list: &[ScoreMappingConfig],
+) -> String {
+    let total_score = (total_score * 10.0).round() / 10.0;
+    for config in score_mapping_list.iter() {
+        if config.min_value <= total_score && config.max_value >= total_score {
+            return config.display_name.clone();
+        }
+    }
+    String::new()
+}
+
+pub fn calculate_gpa(subjects: &[Subject]) -> f64 {
+    let sum: f64 = subjects
+        .iter()
+        .map(|subject| subject.gpa)
+        .filter(|gpa| !gpa.is_nan())
+        .sum();
+    sum / subjects
+        .iter()
+        .filter(|subject| !subject.gpa.is_nan())
+        .count() as f64
+}
+
 pub async fn get_gpa(client: &reqwest::Client, semester_id: u64) -> f64 {
     let response: serde_json::Value = client
         .get(format!(
