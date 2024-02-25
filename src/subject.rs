@@ -103,10 +103,10 @@ async fn get_subject_evaluation_projects(
     evaluation_projects
 }
 
-async fn get_subject_score(evauluation_projects: &[EvaluationProject]) -> f64 {
+async fn get_subject_score(evaluation_projects: &[EvaluationProject]) -> f64 {
     let mut total_score = 0.0;
     let mut total_proportion = 0.0;
-    for evaluation_project in evauluation_projects {
+    for evaluation_project in evaluation_projects {
         total_score += evaluation_project.proportion * evaluation_project.score;
         if !evaluation_project.score_is_null {
             total_proportion += evaluation_project.proportion;
