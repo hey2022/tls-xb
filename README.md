@@ -4,8 +4,13 @@ tls-xb is a cli tool that fetches scores from [Tsinglan Xiaobao](https://tsingla
 
 ## Getting Started
 
-tls-xb is written in Rust,
-so a working [Rust installation](https://www.rust-lang.org/) will be needed.
+### Prerequisites
+
+- tls-xb is written in Rust,
+  so a working [Rust installation](https://www.rust-lang.org/) will be needed.
+- tls-xb uses [viuer](https://github.com/atanunq/viuer) to display the captcha,
+  so a terminal supporting one of the [supported graphics protocols](https://docs.rs/crate/viuer/latest)
+  is needed, terminals supporting sixel be can found [here](https://www.arewesixelyet.com/).
 
 ### Installation
 
