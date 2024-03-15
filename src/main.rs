@@ -108,12 +108,13 @@ fn print_subject(subject: &Subject) {
         return;
     }
     println!(
-        "{}: {} / {} / {} ({})",
+        "{}: {} / {} / {} ({}{})",
         subject.subject_name,
         subject.total_score,
         subject.score_level,
         subject.gpa,
-        subject.score_mapping_list_id
+        subject.score_mapping_list_id,
+        if subject.elective { " Elective" } else { "" },
     );
     for evaluation_project in subject.evaluation_projects.iter() {
         if !evaluation_project.score_is_null {
