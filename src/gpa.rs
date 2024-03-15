@@ -72,15 +72,24 @@ pub fn score_level_from_score(
 }
 
 pub fn calculate_gpa(subjects: &[Subject]) -> f64 {
-    let sum: f64 = subjects
-        .iter()
-        .map(|subject| subject.gpa)
-        .filter(|gpa| !gpa.is_nan())
-        .sum();
-    sum / subjects
+    let total_gpa: f64 = subjects
         .iter()
         .filter(|subject| !subject.gpa.is_nan())
-        .count() as f64
+        .fold(0.0, |total_gpa, subject| {
+            total_gpa
+                + if subject.elective {
+                    subject.gpa * 0.5
+                } else {
+                    subject.gpa
+                }
+        });
+    let total_weight = subjects
+        .iter()
+        .filter(|subject| !subject.gpa.is_nan())
+        .fold(0.0, |total_weight, subject| {
+            total_weight + if subject.elective { 0.5 } else { 1.0 }
+        });
+    total_gpa / total_weight
 }
 
 pub async fn get_gpa(client: &reqwest::Client, semester_id: u64) -> f64 {
