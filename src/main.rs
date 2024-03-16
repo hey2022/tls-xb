@@ -118,15 +118,27 @@ fn print_subject(subject: &Subject) {
     );
     for evaluation_project in subject.evaluation_projects.iter() {
         if !evaluation_project.score_is_null {
-            println!(
-                "{}: {} / {} / {} ({}%)",
-                evaluation_project.evaluation_project_e_name,
-                evaluation_project.score,
-                evaluation_project.score_level,
-                evaluation_project.gpa,
-                evaluation_project.proportion,
-            );
+            print_evaluation_project(evaluation_project);
+        }
+        if !evaluation_project.evaluation_project_list.is_empty() {
+            for evaluation_project in evaluation_project.evaluation_project_list.iter() {
+                if !evaluation_project.score_is_null {
+                    print!("- ");
+                    print_evaluation_project(evaluation_project);
+                }
+            }
         }
     }
     println!();
+}
+
+fn print_evaluation_project(evaluation_project: &EvaluationProject) {
+    println!(
+        "{}: {} / {} / {} ({}%)",
+        evaluation_project.evaluation_project_e_name,
+        evaluation_project.score,
+        evaluation_project.score_level,
+        evaluation_project.gpa,
+        evaluation_project.proportion,
+    );
 }
