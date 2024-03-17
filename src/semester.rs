@@ -2,7 +2,7 @@ use chrono::{DateTime, FixedOffset};
 use serde::de::{Deserializer, Error};
 use serde::Deserialize;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Semester {
     pub id: u64,
