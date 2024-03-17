@@ -6,7 +6,7 @@ mod subject;
 
 use clap::{Parser, Subcommand};
 use config::*;
-use gpa::get_gpa;
+use gpa::{calculate_gpa, default_score_mapping_lists, get_gpa};
 use semester::*;
 use std::io::Write;
 use std::sync::Arc;
@@ -40,30 +40,50 @@ async fn main() {
     let client = client::login(&config).await;
 
     let semesters = get_semesters(&client).await;
-    let semester_id = select_semester(&semesters);
+    let semester = select_semester(&semesters);
 
-    let subject_ids = get_subject_ids(&client, semester_id).await;
+    let score_mapping_lists = default_score_mapping_lists();
+
+    let subject_ids = get_subject_ids(&client, semester.id).await;
+    let elective_class_ids =
+        get_elective_class_ids(&client, semester.start_date, semester.end_date).await;
+
     let mut handles = Vec::new();
     let arc_client = Arc::new(client.clone());
+    let arc_score_mapping_list = Arc::new(score_mapping_lists.clone());
+    let arc_elective_class_ids = Arc::new(elective_class_ids.clone());
     for subject_id in subject_ids {
         let client = Arc::clone(&arc_client);
-        let handle =
-            tokio::spawn(async move { get_subject(&client, semester_id, subject_id).await });
+        let score_mapping_lists = Arc::clone(&arc_score_mapping_list);
+        let elective_class_ids = Arc::clone(&arc_elective_class_ids);
+        let handle = tokio::spawn(async move {
+            get_subject(
+                &client,
+                semester.id,
+                subject_id,
+                &score_mapping_lists,
+                &elective_class_ids,
+            )
+            .await
+        });
         handles.push(handle);
     }
     let mut subjects = Vec::new();
     for handle in handles {
-        subjects.push(handle.await.unwrap());
+        let subject = handle.await.unwrap();
+        subjects.push(subject);
     }
-    for subject in subjects {
+    for subject in subjects.iter() {
         print_subject(subject);
     }
 
-    let gpa = get_gpa(&client, semester_id).await;
+    let gpa = get_gpa(&client, semester.id).await;
+    let calculated_gpa = calculate_gpa(&subjects);
     println!("GPA: {}", gpa);
+    println!("Calculated GPA: {:.2}", calculated_gpa);
 }
 
-fn select_semester(semesters: &[Semester]) -> u64 {
+fn select_semester(semesters: &[Semester]) -> Semester {
     let mut current_semester = 0;
     for (i, semester) in semesters.iter().enumerate().rev() {
         println!("{:2}: {}.{}", i, semester.year, semester.semester);
@@ -80,15 +100,23 @@ fn select_semester(semesters: &[Semester]) -> u64 {
     if input != "\n" {
         current_semester = input.trim().parse().expect("Input not an integer");
     }
-    semesters[current_semester].id
+    semesters[current_semester].clone()
 }
 
-fn print_subject(subject: Subject) {
+fn print_subject(subject: &Subject) {
     if subject.total_score.is_nan() {
         return;
     }
-    println!("{}: {}", subject.subject_name, subject.total_score);
-    for evaluation_project in subject.evaluation_projects {
+    println!(
+        "{}: {} / {} / {} ({}{})",
+        subject.subject_name,
+        subject.total_score,
+        subject.score_level,
+        subject.gpa,
+        subject.score_mapping_list_id,
+        if subject.elective { " Elective" } else { "" },
+    );
+    for evaluation_project in subject.evaluation_projects.iter() {
         if !evaluation_project.score_is_null {
             println!(
                 "{}: {} / {} / {} ({}%)",

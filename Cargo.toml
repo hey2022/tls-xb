@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 base64 = "0.21.7"
+chrono = "0.4.34"
 clap = { version = "4.5.0", features = ["derive"] }
 confy = "0.6.0"
 image = "0.24.9"
