@@ -110,6 +110,8 @@ pub struct EvaluationProject {
     pub score_level: String,
     pub gpa: f64,
     pub score_is_null: bool,
+    #[serde(default)]
+    pub evaluation_project_list: Vec<EvaluationProject>,
 }
 
 async fn get_subject_evaluation_projects(
