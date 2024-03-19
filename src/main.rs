@@ -108,7 +108,7 @@ fn print_subject(subject: &Subject) {
         return;
     }
     println!(
-        "{}: {} / {} / {} ({}{})",
+        "{}: {:.1} / {} / {} ({}{})",
         subject.subject_name,
         subject.total_score,
         subject.score_level,
@@ -134,7 +134,7 @@ fn print_subject(subject: &Subject) {
 
 fn print_evaluation_project(evaluation_project: &EvaluationProject) {
     println!(
-        "{}: {} / {} / {} ({}%)",
+        "{}: {:.1} / {} / {} ({}%)",
         evaluation_project.evaluation_project_e_name,
         evaluation_project.score,
         evaluation_project.score_level,
