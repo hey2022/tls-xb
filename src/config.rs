@@ -17,6 +17,7 @@ pub fn login() {
     std::io::stdin()
         .read_line(&mut name)
         .expect("Failed to read line");
+    name = name.trim().to_string();
     let password = rpassword::prompt_password("Password: ").unwrap();
     let timestamp = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
