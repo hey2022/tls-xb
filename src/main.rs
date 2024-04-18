@@ -97,8 +97,9 @@ fn select_semester(semesters: &[Semester]) -> Semester {
     std::io::stdin()
         .read_line(&mut input)
         .expect("Failed to read line");
-    if input != "\n" {
-        current_semester = input.trim().parse().expect("Input not an integer");
+    input = input.trim().to_string();
+    if !input.is_empty() {
+        current_semester = input.parse().expect("Input not an integer");
     }
     semesters[current_semester].clone()
 }
