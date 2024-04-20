@@ -42,5 +42,4 @@ This will place the binary at `target/release/tls-xb`
 
 ## Usage
 
-In your terminal, run `tls-xb login` to generate your login keys,
-then run `tls-xb` to start the program.
+In your terminal, run `tls-xb login` to login, then run `tls-xb` to run the program.
