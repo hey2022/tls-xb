@@ -1,5 +1,13 @@
 [package]
 name = "tls-xb"
+authors = ["Yiheng He <yiheng.he@proton.me>"]
+license = "GPL-3.0"
+description = "tls-xb is a cli tool that fetches scores and GPA from https://tsinglanstudent.schoolis.cn"
+homepage = "https://github.com/hey2022/tls-xb"
+repository = "https://github.com/hey2022/tls-xb"
+documentation = "https://github.com/hey2022/tls-xb"
+keywords = ["cli"]
+categories = ["command-line-interface"]
 version = "0.1.0"
 edition = "2021"
 
