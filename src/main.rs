@@ -5,6 +5,7 @@ mod semester;
 mod subject;
 
 use clap::{Parser, Subcommand};
+use colored::{ColoredString, Colorize};
 use config::*;
 use gpa::{calculate_gpa, default_score_mapping_lists, get_gpa};
 use semester::*;
@@ -110,7 +111,7 @@ fn print_subject(subject: &Subject) {
     }
     println!(
         "{}: {:.1} / {} / {} ({}{})",
-        subject.subject_name,
+        colorize(&subject.subject_name, &subject.score_level),
         subject.total_score,
         subject.score_level,
         subject.gpa,
@@ -136,10 +137,29 @@ fn print_subject(subject: &Subject) {
 fn print_evaluation_project(evaluation_project: &EvaluationProject) {
     println!(
         "{}: {:.1} / {} / {} ({}%)",
-        evaluation_project.evaluation_project_e_name,
+        colorize(
+            &evaluation_project.evaluation_project_e_name,
+            &evaluation_project.score_level
+        ),
         evaluation_project.score,
         evaluation_project.score_level,
         evaluation_project.gpa,
         evaluation_project.proportion,
     );
+}
+
+fn colorize(string: &str, score_level: &str) -> ColoredString {
+    let letter = score_level.chars().next().unwrap();
+    let color = match letter {
+        'A' => "green",
+        'B' => "blue",
+        'C' => "yellow",
+        'D' => "red",
+        'F' => "red",
+        _ => "white",
+    };
+    if score_level == "A+" || score_level == "F" {
+        return string.color(color).bold();
+    }
+    string.color(color)
 }
