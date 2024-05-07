@@ -86,7 +86,13 @@ async fn main() {
 fn select_semester(semesters: &[Semester]) -> Semester {
     let mut current_semester = 0;
     for (i, semester) in semesters.iter().enumerate().rev() {
-        println!("{:2}: {}.{}", i, semester.year, semester.semester);
+        println!(
+            "{:2}: Semester {}, {}-{}",
+            i,
+            semester.semester,
+            semester.year,
+            semester.year + 1,
+        );
         if semester.is_now {
             current_semester = i;
         }
