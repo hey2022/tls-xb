@@ -36,6 +36,14 @@ async fn main() {
             }
         }
     }
+
+    println!(
+        ":: Getting config.toml from {}...",
+        confy::get_configuration_file_path("tls-xb", "config")
+            .unwrap()
+            .to_str()
+            .unwrap()
+    );
     let config = get_config();
 
     println!(":: Logging in...");
