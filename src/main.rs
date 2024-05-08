@@ -57,8 +57,7 @@ async fn main() {
 
     println!(":: Fetching subjects...");
     let subject_ids = get_subject_ids(&client, semester.id).await;
-    let elective_class_ids =
-        get_elective_class_ids(&client, semester.start_date, semester.end_date).await;
+    let elective_class_ids = get_elective_class_ids(&client, semester.start_date).await;
 
     println!(":: Fetching subject scores...");
     let mut handles = Vec::new();
