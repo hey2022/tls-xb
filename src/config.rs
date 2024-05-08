@@ -41,13 +41,6 @@ fn get_hashed_password(password: String, timestamp: u64) -> String {
 }
 
 pub fn get_config() -> Config {
-    println!(
-        "Getting config.toml from {}...",
-        confy::get_configuration_file_path("tls-xb", "config")
-            .unwrap()
-            .to_str()
-            .unwrap()
-    );
     let config: Config = confy::load("tls-xb", "config").expect("Failed to get config");
     config
 }
