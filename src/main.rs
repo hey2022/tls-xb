@@ -37,17 +37,22 @@ async fn main() {
         }
     }
     let config = get_config();
+
+    println!(":: Logging in...");
     let client = client::login(&config).await;
 
+    println!(":: Fetching semesters...");
     let semesters = get_semesters(&client).await;
     let semester = select_semester(&semesters);
 
     let score_mapping_lists = default_score_mapping_lists();
 
+    println!(":: Fetching subjects...");
     let subject_ids = get_subject_ids(&client, semester.id).await;
     let elective_class_ids =
         get_elective_class_ids(&client, semester.start_date, semester.end_date).await;
 
+    println!(":: Fetching subject scores...");
     let mut handles = Vec::new();
     let arc_client = Arc::new(client.clone());
     let arc_score_mapping_list = Arc::new(score_mapping_lists.clone());
@@ -77,6 +82,7 @@ async fn main() {
         print_subject(subject);
     }
 
+    println!(":: Fetching GPA...");
     let gpa = get_gpa(&client, semester.id).await;
     let calculated_gpa = calculate_gpa(&subjects);
     println!("GPA: {}", gpa);
