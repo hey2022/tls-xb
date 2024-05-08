@@ -1,5 +1,5 @@
 use crate::gpa::*;
-use chrono::{DateTime, FixedOffset};
+use chrono::{DateTime, Duration, FixedOffset};
 use itertools::Itertools;
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -147,11 +147,13 @@ async fn get_subject_score(evaluation_projects: &[EvaluationProject]) -> f64 {
 pub async fn get_elective_class_ids(
     client: &reqwest::Client,
     begin_time: DateTime<FixedOffset>,
-    end_time: DateTime<FixedOffset>,
 ) -> Vec<u64> {
-    let begin_time = begin_time.format("%Y-%m-%d").to_string();
-    let end_time = end_time.format("%Y-%m-%d").to_string();
-    let payload = &serde_json::json!({"beginTime":begin_time,"endTime":end_time});
+    let begin_time_payload = begin_time.format("%Y-%m-%d").to_string();
+    // 8 days = 6 days per cycle + 2 weekends
+    let end_time_payload = (begin_time + Duration::days(8))
+        .format("%Y-%m-%d")
+        .to_string();
+    let payload = &serde_json::json!({"beginTime":begin_time_payload,"endTime":end_time_payload});
     let response: serde_json::Value = client
         .post("https://tsinglanstudent.schoolis.cn/api/Schedule/ListScheduleByParent")
         .json(&payload)

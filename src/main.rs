@@ -45,8 +45,7 @@ async fn main() {
     let score_mapping_lists = default_score_mapping_lists();
 
     let subject_ids = get_subject_ids(&client, semester.id).await;
-    let elective_class_ids =
-        get_elective_class_ids(&client, semester.start_date, semester.end_date).await;
+    let elective_class_ids = get_elective_class_ids(&client, semester.start_date).await;
 
     let mut handles = Vec::new();
     let arc_client = Arc::new(client.clone());
