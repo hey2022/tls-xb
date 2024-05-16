@@ -5,7 +5,7 @@ mod semester;
 mod subject;
 
 use clap::{Parser, Subcommand};
-use colored::{ColoredString, Colorize};
+use colored::Colorize;
 use config::*;
 use gpa::{calculate_gpa, default_score_mapping_lists, get_gpa};
 use semester::*;
@@ -167,7 +167,7 @@ fn print_evaluation_project(evaluation_project: &EvaluationProject) {
     );
 }
 
-fn colorize(string: &str, score_level: &str) -> ColoredString {
+fn colorize(string: &str, score_level: &str) -> String {
     let letter = score_level.chars().next().unwrap();
     let color = match letter {
         'A' => "green",
@@ -178,7 +178,7 @@ fn colorize(string: &str, score_level: &str) -> ColoredString {
         _ => "white",
     };
     if score_level == "A+" || score_level == "F" {
-        return string.color(color).bold();
+        return string.color(color).bold().to_string();
     }
-    string.color(color)
+    string.color(color).to_string()
 }
