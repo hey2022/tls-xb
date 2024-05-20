@@ -12,6 +12,10 @@ use semester::*;
 use std::io::Write;
 use std::sync::Arc;
 use subject::*;
+use tabled::{
+    settings::{object::Rows, Disable, Style},
+    Table,
+};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -128,43 +132,50 @@ fn print_subject(subject: &Subject) {
     if subject.total_score.is_nan() {
         return;
     }
-    println!(
-        "{}: {:.1} / {} / {} ({}{})",
+    let mut data = vec![(
         colorize(&subject.subject_name, &subject.score_level),
-        subject.total_score,
-        subject.score_level,
+        format!("{:.1}", subject.total_score),
+        &subject.score_level,
         subject.gpa,
-        subject.score_mapping_list_id,
-        if subject.elective { " Elective" } else { "" },
-    );
+        subject.score_mapping_list_id.to_string() + if subject.elective { " Elective" } else { "" },
+    )];
     for evaluation_project in subject.evaluation_projects.iter() {
-        if !evaluation_project.score_is_null {
-            print_evaluation_project(evaluation_project);
+        if evaluation_project.score_is_null {
+            continue;
         }
-        if !evaluation_project.evaluation_project_list.is_empty() {
-            for evaluation_project in evaluation_project.evaluation_project_list.iter() {
-                if !evaluation_project.score_is_null {
-                    print!("- ");
-                    print_evaluation_project(evaluation_project);
-                }
+        let row = get_evaluation_project_row(&evaluation_project);
+        data.push(row);
+        if evaluation_project.evaluation_project_list.is_empty() {
+            continue;
+        }
+        for evaluation_project in evaluation_project.evaluation_project_list.iter() {
+            if !evaluation_project.score_is_null {
+                let mut row = get_evaluation_project_row(&evaluation_project);
+                row.0.insert_str(0, "- ");
+                data.push(row);
             }
         }
     }
-    println!();
+    let table = Table::new(data)
+        .with(Disable::row(Rows::first()))
+        .with(Style::rounded())
+        .to_string();
+    println!("{}", table);
 }
 
-fn print_evaluation_project(evaluation_project: &EvaluationProject) {
-    println!(
-        "{}: {:.1} / {} / {} ({}%)",
+fn get_evaluation_project_row(
+    evaluation_project: &EvaluationProject,
+) -> (String, String, &String, f64, String) {
+    (
         colorize(
             &evaluation_project.evaluation_project_e_name,
-            &evaluation_project.score_level
+            &evaluation_project.score_level,
         ),
-        evaluation_project.score,
-        evaluation_project.score_level,
+        format!("{:.1}", evaluation_project.score),
+        &evaluation_project.score_level,
         evaluation_project.gpa,
-        evaluation_project.proportion,
-    );
+        format!("{}%", evaluation_project.proportion),
+    )
 }
 
 fn colorize(string: &str, score_level: &str) -> String {
