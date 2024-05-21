@@ -50,7 +50,11 @@ pub async fn get_subject(
     let gpa = gpa_from_score(total_score, score_mapping_list);
     let score_level = score_level_from_score(total_score, score_mapping_list);
     let elective = elective_class_ids.contains(&subject_detail.class_id);
-    let weight = if elective { 0.5 } else { 1.0 };
+    let weight = if elective || subject_detail.subject_name == "C-Humanities" {
+        0.5
+    } else {
+        1.0
+    };
     Subject {
         subject_name: subject_detail.subject_name,
         subject_id,
