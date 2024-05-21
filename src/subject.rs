@@ -32,6 +32,7 @@ pub struct Subject {
     pub gpa: f64,
     pub score_level: String,
     pub elective: bool,
+    pub weight: f64,
 }
 
 pub async fn get_subject(
@@ -49,6 +50,7 @@ pub async fn get_subject(
     let gpa = gpa_from_score(total_score, score_mapping_list);
     let score_level = score_level_from_score(total_score, score_mapping_list);
     let elective = elective_class_ids.contains(&subject_detail.class_id);
+    let weight = if elective { 0.5 } else { 1.0 };
     Subject {
         subject_name: subject_detail.subject_name,
         subject_id,
@@ -59,6 +61,7 @@ pub async fn get_subject(
         gpa,
         score_level,
         elective,
+        weight,
     }
 }
 
