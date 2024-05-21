@@ -44,7 +44,7 @@ pub async fn get_subject(
 ) -> Subject {
     let subject_detail = get_subject_detail(client, semester_id, subject_id).await;
     let evaluation_projects = get_subject_evaluation_projects(client, &subject_detail).await;
-    let total_score = get_subject_score(&evaluation_projects).await;
+    let total_score = get_subject_score(&evaluation_projects);
     let score_mapping_list_id = get_score_mapping_list_id(&subject_detail);
     let score_mapping_list = &score_mapping_lists[&score_mapping_list_id];
     let gpa = gpa_from_score(total_score, score_mapping_list);
@@ -138,7 +138,7 @@ async fn get_subject_evaluation_projects(
     evaluation_projects
 }
 
-async fn get_subject_score(evaluation_projects: &[EvaluationProject]) -> f64 {
+fn get_subject_score(evaluation_projects: &[EvaluationProject]) -> f64 {
     let mut total_score = 0.0;
     let mut total_proportion = 0.0;
     for evaluation_project in evaluation_projects {
