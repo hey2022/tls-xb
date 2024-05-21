@@ -76,19 +76,12 @@ pub fn calculate_gpa(subjects: &[Subject]) -> f64 {
         .iter()
         .filter(|subject| !subject.gpa.is_nan())
         .fold(0.0, |total_gpa, subject| {
-            total_gpa
-                + if subject.elective {
-                    subject.gpa * 0.5
-                } else {
-                    subject.gpa
-                }
+            total_gpa + subject.gpa * subject.weight
         });
     let total_weight = subjects
         .iter()
         .filter(|subject| !subject.gpa.is_nan())
-        .fold(0.0, |total_weight, subject| {
-            total_weight + if subject.elective { 0.5 } else { 1.0 }
-        });
+        .fold(0.0, |total_weight, subject| total_weight + subject.weight);
     total_gpa / total_weight
 }
 
