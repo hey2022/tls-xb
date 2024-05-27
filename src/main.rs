@@ -10,13 +10,13 @@ use config::*;
 use futures::future::join_all;
 use gpa::{calculate_gpa, default_score_mapping_lists, get_gpa};
 use semester::*;
-use std::io::Write;
 use std::sync::Arc;
 use subject::*;
 use tabled::{
     settings::{object::Rows, Disable, Style},
     Table,
 };
+use text_io::read;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -117,12 +117,7 @@ fn select_semester(semesters: &[Semester]) -> Semester {
         }
     }
     print!("Choose a semester [{}]: ", current_semester);
-    std::io::stdout().flush().unwrap();
-    let mut input = String::new();
-    std::io::stdin()
-        .read_line(&mut input)
-        .expect("Failed to read line");
-    input = input.trim().to_string();
+    let input: String = read!("{}\n");
     if !input.is_empty() {
         current_semester = input.parse().expect("Input not an integer");
     }
