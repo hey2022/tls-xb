@@ -7,6 +7,7 @@ mod subject;
 use clap::{Parser, Subcommand};
 use colored::Colorize;
 use config::*;
+use futures::future::join_all;
 use gpa::{calculate_gpa, default_score_mapping_lists, get_gpa};
 use semester::*;
 use std::io::Write;
@@ -58,41 +59,44 @@ async fn main() {
     let semesters = get_semesters(&client).await;
     let semester = select_semester(&semesters);
 
-    let score_mapping_lists = Arc::new(default_score_mapping_lists());
-
     println!(":: Fetching subjects...");
-    let subject_ids = get_subject_ids(&client, semester.id).await;
-    let elective_class_ids = Arc::new(get_elective_class_ids(&client, semester.start_date).await);
+    let score_mapping_lists = Arc::new(default_score_mapping_lists());
+    let shared_client = Arc::clone(&client);
+    let elective_class_ids_handle =
+        tokio::spawn(
+            async move { get_elective_class_ids(&shared_client, semester.start_date).await },
+        );
+
+    println!(":: Fetching GPA...");
+    let shared_client = Arc::clone(&client);
+    let gpa_handle = tokio::spawn(async move { get_gpa(&shared_client, semester.id).await });
 
     println!(":: Fetching subject scores...");
+    let subject_ids = get_subject_ids(&client, semester.id).await;
     let mut handles = Vec::new();
     for subject_id in subject_ids {
         let client = Arc::clone(&client);
         let score_mapping_lists = Arc::clone(&score_mapping_lists);
-        let elective_class_ids = Arc::clone(&elective_class_ids);
         let handle = tokio::spawn(async move {
-            get_subject(
-                &client,
-                semester.id,
-                subject_id,
-                &score_mapping_lists,
-                &elective_class_ids,
-            )
-            .await
+            get_subject(&client, semester.id, subject_id, &score_mapping_lists).await
         });
         handles.push(handle);
     }
+
     let mut subjects = Vec::new();
-    for handle in handles {
-        let subject = handle.await.unwrap();
+    let elective_class_ids = elective_class_ids_handle.await.unwrap();
+    let results = join_all(handles).await;
+    for result in results {
+        let mut subject = result.unwrap();
+        adjust_weights(&mut subject, &elective_class_ids);
         subjects.push(subject);
     }
+
     for subject in subjects.iter() {
         print_subject(subject);
     }
 
-    println!(":: Fetching GPA...");
-    let gpa = get_gpa(&client, semester.id).await;
+    let gpa = gpa_handle.await.unwrap();
     let calculated_gpa = calculate_gpa(&subjects);
     println!("GPA: {}", gpa);
     println!("Calculated GPA: {:.2}", calculated_gpa);

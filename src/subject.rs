@@ -40,7 +40,6 @@ pub async fn get_subject(
     semester_id: u64,
     subject_id: u64,
     score_mapping_lists: &HashMap<ScoreMappingId, Vec<ScoreMappingConfig>>,
-    elective_class_ids: &[u64],
 ) -> Subject {
     let subject_detail = get_subject_detail(client, semester_id, subject_id).await;
     let evaluation_projects = get_subject_evaluation_projects(client, &subject_detail).await;
@@ -49,12 +48,6 @@ pub async fn get_subject(
     let score_mapping_list = &score_mapping_lists[&score_mapping_list_id];
     let gpa = gpa_from_score(total_score, score_mapping_list);
     let score_level = score_level_from_score(total_score, score_mapping_list);
-    let elective = elective_class_ids.contains(&subject_detail.class_id);
-    let weight = if elective || subject_detail.subject_name == "C-Humanities" {
-        0.5
-    } else {
-        1.0
-    };
     Subject {
         subject_name: subject_detail.subject_name,
         subject_id,
@@ -64,8 +57,8 @@ pub async fn get_subject(
         score_mapping_list_id,
         gpa,
         score_level,
-        elective,
-        weight,
+        elective: false,
+        weight: 1.0,
     }
 }
 
@@ -178,4 +171,12 @@ pub async fn get_elective_class_ids(
         .unique()
         .collect();
     elective_class_ids
+}
+
+pub fn adjust_weights(subject: &mut Subject, elective_class_ids: &[u64]) {
+    let elective = elective_class_ids.contains(&subject.class_id);
+    if elective || subject.subject_name == "C-Humanities" {
+        subject.elective = elective;
+        subject.weight = 0.5;
+    }
 }
