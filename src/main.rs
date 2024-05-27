@@ -52,27 +52,24 @@ async fn main() {
     let config = get_config();
 
     println!(":: Logging in...");
-    let client = client::login(&config).await;
+    let client = Arc::new(client::login(&config).await);
 
     println!(":: Fetching semesters...");
     let semesters = get_semesters(&client).await;
     let semester = select_semester(&semesters);
 
-    let score_mapping_lists = default_score_mapping_lists();
+    let score_mapping_lists = Arc::new(default_score_mapping_lists());
 
     println!(":: Fetching subjects...");
     let subject_ids = get_subject_ids(&client, semester.id).await;
-    let elective_class_ids = get_elective_class_ids(&client, semester.start_date).await;
+    let elective_class_ids = Arc::new(get_elective_class_ids(&client, semester.start_date).await);
 
     println!(":: Fetching subject scores...");
     let mut handles = Vec::new();
-    let arc_client = Arc::new(client.clone());
-    let arc_score_mapping_list = Arc::new(score_mapping_lists.clone());
-    let arc_elective_class_ids = Arc::new(elective_class_ids.clone());
     for subject_id in subject_ids {
-        let client = Arc::clone(&arc_client);
-        let score_mapping_lists = Arc::clone(&arc_score_mapping_list);
-        let elective_class_ids = Arc::clone(&arc_elective_class_ids);
+        let client = Arc::clone(&client);
+        let score_mapping_lists = Arc::clone(&score_mapping_lists);
+        let elective_class_ids = Arc::clone(&elective_class_ids);
         let handle = tokio::spawn(async move {
             get_subject(
                 &client,
