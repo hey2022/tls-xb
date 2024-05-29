@@ -144,14 +144,14 @@ fn print_subject(subject: &Subject) {
         if evaluation_project.score_is_null {
             continue;
         }
-        let row = get_evaluation_project_row(&evaluation_project);
+        let row = get_evaluation_project_row(evaluation_project);
         data.push(row);
         if evaluation_project.evaluation_project_list.is_empty() {
             continue;
         }
         for evaluation_project in evaluation_project.evaluation_project_list.iter() {
             if !evaluation_project.score_is_null {
-                let mut row = get_evaluation_project_row(&evaluation_project);
+                let mut row = get_evaluation_project_row(evaluation_project);
                 row.0.insert_str(0, "- ");
                 data.push(row);
             }
