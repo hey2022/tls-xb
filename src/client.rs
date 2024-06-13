@@ -2,7 +2,8 @@ use crate::config::Config;
 use base64::Engine as _;
 use image::{DynamicImage, ImageFormat};
 use serde::Serialize;
-use std::io::{Cursor, Write};
+use std::io::Cursor;
+use text_io::read;
 
 #[derive(Serialize)]
 struct Payload {
@@ -72,10 +73,6 @@ pub async fn get_captcha(client: &reqwest::Client) -> String {
     viuer::print(&image, &conf).expect("Failed to print image");
 
     print!("Captcha: ");
-    std::io::stdout().flush().unwrap();
-    let mut captcha = String::new();
-    std::io::stdin()
-        .read_line(&mut captcha)
-        .expect("Failed to read line");
+    let captcha = read!();
     captcha
 }
