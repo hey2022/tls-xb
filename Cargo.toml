@@ -11,6 +11,12 @@ categories = ["command-line-interface"]
 version = "0.3.1"
 edition = "2021"
 
+[package.metadata.wix]
+upgrade-guid = "48FD9800-A2AC-4FE4-92F7-4AE2F3DDE16E"
+path-guid = "73D0D0BE-E1CF-47BF-A9FA-B91C1005AE7B"
+license = false
+eula = false
+
 [dependencies]
 base64 = "0.21.7"
 chrono = "0.4.34"
@@ -29,3 +35,23 @@ tabled = { version = "0.15", features = ["ansi"] }
 text_io = "0.1.12"
 tokio = { version = "1.36.0", features = ["rt-multi-thread", "macros"] }
 viuer = "0.7.1"
+
+# The profile that 'cargo dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
+
+# Config for 'cargo dist'
+[workspace.metadata.dist]
+# The preferred cargo-dist version to use in CI (Cargo.toml SemVer syntax)
+cargo-dist-version = "0.16.0"
+# CI backends to support
+ci = "github"
+# The installers to generate for each app
+installers = ["shell", "msi"]
+# Target platforms to build apps for (Rust target-triple syntax)
+targets = ["aarch64-apple-darwin", "x86_64-apple-darwin", "x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc"]
+# Publish jobs to run in CI
+pr-run-mode = "plan"
+# Whether to install an updater program
+install-updater = false
