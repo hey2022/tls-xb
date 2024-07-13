@@ -10,19 +10,30 @@ tls-xb is a cli tool that fetches scores and GPA from [Tsinglan Xiaobao](https:/
   so a terminal supporting one of the [supported graphics protocols](https://docs.rs/crate/viuer/latest)
   is needed, terminals supporting sixel be can found [here](https://www.arewesixelyet.com/).
 
-## Installation
+## Install
+
+### From source
 
 ``` sh
 cargo install tls-xb
 ```
 
-## Building
+### From binaries
+
+The [release page](https://github.com/hey2022/tls-xb/releases) contains
+precompiled binaries for Linux, macOS and Windows.
+
+## Development
 
 ``` sh
 git clone https://github.com/hey2022/tls-xb.git
+
+# Build
 cd tls-xb
-cargo build --release
-./target/release/tls-xb --version
+cargo build
+
+# Install
+cargo install --path .
 ```
 
 ## Usage
