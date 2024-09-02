@@ -8,7 +8,7 @@ repository = "https://github.com/hey2022/tls-xb"
 documentation = "https://github.com/hey2022/tls-xb"
 keywords = ["cli"]
 categories = ["command-line-interface"]
-version = "0.3.3"
+version = "0.3.4"
 edition = "2021"
 
 [package.metadata.wix]
