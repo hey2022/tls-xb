@@ -41,7 +41,7 @@ pub fn default_score_mapping_lists() -> HashMap<ScoreMappingId, Vec<ScoreMapping
 }
 
 pub fn get_score_mapping_list_id(subject_detail: &SubjectDetail) -> ScoreMappingId {
-    if subject_detail.subject_name.contains("AP") || subject_detail.subject_name.contains("A Level")
+    if subject_detail.subject_name.contains("AP") || subject_detail.subject_name.contains("A Level") || subject_detail.subject_name.contains("AS")
     {
         return ScoreMappingId::Weighted;
     }
