@@ -117,7 +117,8 @@ fn select_semester(semesters: &[Semester]) -> Semester {
         }
     }
     print!("Choose a semester [{}]: ", current_semester);
-    let input: String = read!("{}\n");
+    let mut input: String = read!("{}\n");
+    input = input.trim().to_string();
     if !input.is_empty() {
         current_semester = input.parse().expect("Input not an integer");
     }

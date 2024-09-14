@@ -11,7 +11,7 @@ pub struct Config {
 
 pub fn login() {
     print!("Username: ");
-    let name = read!("{}\n");
+    let name = read!();
     let password = rpassword::prompt_password("Password: ").unwrap();
     let timestamp = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
