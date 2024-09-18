@@ -30,6 +30,7 @@ pub struct Subject {
     pub evaluation_projects: Vec<EvaluationProject>,
     pub score_mapping_list_id: ScoreMappingId,
     pub gpa: f64,
+    pub unweighted_gpa: f64,
     pub score_level: String,
     pub elective: bool,
     pub weight: f64,
@@ -47,6 +48,10 @@ pub async fn get_subject(
     let score_mapping_list_id = get_score_mapping_list_id(&subject_detail);
     let score_mapping_list = &score_mapping_lists[&score_mapping_list_id];
     let gpa = gpa_from_score(total_score, score_mapping_list);
+    let unweighted_gpa = gpa_from_score(
+        total_score,
+        &score_mapping_lists[&ScoreMappingId::NonWeighted],
+    );
     let score_level = score_level_from_score(total_score, score_mapping_list);
     Subject {
         subject_name: subject_detail.subject_name,
@@ -56,6 +61,7 @@ pub async fn get_subject(
         evaluation_projects,
         score_mapping_list_id,
         gpa,
+        unweighted_gpa,
         score_level,
         elective: false,
         weight: 1.0,
