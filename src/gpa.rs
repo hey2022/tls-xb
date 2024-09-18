@@ -85,6 +85,20 @@ pub fn calculate_gpa(subjects: &[Subject]) -> f64 {
     total_gpa / total_weight
 }
 
+pub fn calculate_unweighted_gpa(subjects: &[Subject]) -> f64 {
+    let total_gpa: f64 = subjects
+        .iter()
+        .filter(|subject| !subject.unweighted_gpa.is_nan())
+        .fold(0.0, |total_gpa, subject| {
+            total_gpa + subject.unweighted_gpa * subject.weight
+        });
+    let total_weight = subjects
+        .iter()
+        .filter(|subject| !subject.unweighted_gpa.is_nan())
+        .fold(0.0, |total_weight, subject| total_weight + subject.weight);
+    total_gpa / total_weight
+}
+
 pub async fn get_gpa(client: &reqwest::Client, semester_id: u64) -> f64 {
     let response: serde_json::Value = client
         .get(format!(
