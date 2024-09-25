@@ -16,6 +16,9 @@ tls-xb is a cli tool that fetches scores and GPA from [Tsinglan Xiaobao](https:/
 
 ``` sh
 cargo install tls-xb
+
+# git version
+cargo install --git https://github.com/hey2022/tls-xb.git
 ```
 
 ### From binaries
