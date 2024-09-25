@@ -2,6 +2,14 @@
 
 tls-xb is a cli tool that fetches scores and GPA from [Tsinglan Xiaobao](https://tsinglanstudent.schoolis.cn).
 
+## Features
+
+- Access weighted and unweighted GPA, even when hidden.
+- View detailed subject scores for all subjects.
+- View scores from previous semesters.
+- Color coded scores depending on performance.
+- Tabled output.
+
 ## Prerequisites
 
 - tls-xb is written in [Rust](https://www.rust-lang.org/),
