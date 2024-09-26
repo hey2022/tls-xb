@@ -12,8 +12,6 @@ tls-xb is a cli tool that fetches scores and GPA from [Tsinglan Xiaobao](https:/
 
 ## Prerequisites
 
-- tls-xb is written in [Rust](https://www.rust-lang.org/),
-  so a working Rust [installation](https://rustup.rs/) will be needed.
 - tls-xb uses [viuer](https://github.com/atanunq/viuer) to display the captcha,
   so a terminal supporting one of the [supported graphics protocols](https://docs.rs/crate/viuer/latest)
   is needed, terminals supporting sixel be can found [here](https://www.arewesixelyet.com/).
@@ -39,6 +37,9 @@ precompiled binaries for:
 - [Linux](https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-x86_64-unknown-linux-gnu.tar.xz)
 
 ### From source
+
+tls-xb is written in [Rust](https://www.rust-lang.org),
+so the Rust [toolchain](https://rustup.rs) will be needed to compile it.
 
 ``` sh
 cargo install tls-xb
