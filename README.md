@@ -25,6 +25,19 @@ tls-xb is a cli tool that fetches scores and GPA from [Tsinglan Xiaobao](https:/
 
 ## Install
 
+### From binaries
+
+The [release page](https://github.com/hey2022/tls-xb/releases) contains
+precompiled binaries for:
+
+- Windows
+   - [Installer](https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-x86_64-pc-windows-msvc.msi)
+   - [Executable](https://github.com/hey2022/tls-xb/releases/download/v0.3.5/tls-xb-x86_64-pc-windows-msvc.zip)
+- macOS
+   - [Apple Silicon](https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-aarch64-apple-darwin.tar.xz)
+   - [Intel](https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-x86_64-apple-darwin.tar.xz)
+- [Linux](https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-x86_64-unknown-linux-gnu.tar.xz)
+
 ### From source
 
 ``` sh
@@ -33,11 +46,6 @@ cargo install tls-xb
 # git version
 cargo install --git https://github.com/hey2022/tls-xb.git
 ```
-
-### From binaries
-
-The [release page](https://github.com/hey2022/tls-xb/releases) contains
-precompiled binaries for Linux, macOS and Windows.
 
 ## Development
 
