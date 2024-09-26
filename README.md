@@ -14,12 +14,12 @@ tls-xb is a cli tool that fetches scores and GPA from [Tsinglan Xiaobao](https:/
 
 - tls-xb uses [viuer](https://github.com/atanunq/viuer) to display the captcha,
   so a terminal supporting one of the [supported graphics protocols](https://docs.rs/crate/viuer/latest)
-  is needed, terminals supporting sixel be can found [here](https://www.arewesixelyet.com/).
+  is needed. Terminals supporting sixel be can found [here](https://www.arewesixelyet.com).
 
   Recommended terminals:
   - Windows: [Windows Terminal](https://github.com/microsoft/terminal)
   - macOS: [iTerm 2](https://iterm2.com/)
-  - Linux: [Kitty](https://sw.kovidgoyal.net/kitty/)
+  - Linux: [Kitty](https://sw.kovidgoyal.net/kitty)
 
 ## Install
 
@@ -44,7 +44,7 @@ so the Rust [toolchain](https://rustup.rs) will be needed to compile it.
 ``` sh
 cargo install tls-xb
 
-# git version
+# Git version
 cargo install --git https://github.com/hey2022/tls-xb.git
 ```
 
