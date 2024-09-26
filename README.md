@@ -66,4 +66,5 @@ cargo install --path .
 
 ## Usage
 
-In your terminal, run `tls-xb login` to login, then run `tls-xb` to run the program.
+1. In your terminal, run `tls-xb login` to save your login details on your computer.
+1. Run `tls-xb` to run the program.
