@@ -52,10 +52,13 @@ cargo install --git https://github.com/hey2022/tls-xb.git
 
 ``` sh
 git clone https://github.com/hey2022/tls-xb.git
+cd tls-xb
 
 # Build
-cd tls-xb
 cargo build
+
+# Run
+cargo run
 
 # Install
 cargo install --path .
