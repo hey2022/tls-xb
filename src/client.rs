@@ -72,7 +72,7 @@ pub async fn get_captcha(client: &reqwest::Client) -> String {
     print!("\x1B[2J"); // clear terminal screen
     viuer::print(&image, &conf).expect("Failed to print image");
 
-    print!("Captcha: ");
+    print!("\nCaptcha: ");
     let captcha = read!();
     captcha
 }
