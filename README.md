@@ -48,6 +48,10 @@ cargo install tls-xb
 cargo install --git https://github.com/hey2022/tls-xb.git
 ```
 
+## Update
+
+To update tls-xb simply reinstall a newer version.
+
 ## Development
 
 ``` sh
