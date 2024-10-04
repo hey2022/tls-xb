@@ -19,7 +19,7 @@ tls-xb is a cli tool that fetches scores and GPA from [Tsinglan Xiaobao](https:/
   Recommended terminals:
   - Windows: [Windows Terminal](https://github.com/microsoft/terminal)
   - macOS: [iTerm 2](https://iterm2.com/)
-  - Linux: [Kitty](https://sw.kovidgoyal.net/kitty)
+  - Linux: [Kitty](https://sw.kovidgoyal.net/kitty) or [WezTerm](https://wezfurlong.org/wezterm)
 
 ## Install
 
