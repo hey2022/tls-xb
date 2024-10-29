@@ -72,3 +72,12 @@ cargo install --path .
 
 1. In your terminal, run `tls-xb login` to save your login details on your computer.
 1. Run `tls-xb` to run the program.
+
+## FAQ
+
+### What is GPA Delta?
+
+GPA Delta is the change in GPA when the grade of a subject increases or drops
+(when not changing to or from F).
+For example, if English increases from A to A+,
+GPA Delta would be the resulting change in GPA.
