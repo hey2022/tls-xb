@@ -73,7 +73,33 @@ pub fn score_level_from_score(
     String::new()
 }
 
-pub fn calculate_gpa(subjects: &[Subject]) -> f64 {
+pub struct CalculatedGPA {
+    pub weighted_gpa: f64,
+    pub unweighted_gpa: f64,
+    pub gpa_delta: f64,
+}
+
+pub fn calculate_gpa(subjects: &[Subject]) -> CalculatedGPA {
+    let weighted_gpa = calculate_weighted_gpa(subjects);
+    let unweighted_gpa = calculate_unweighted_gpa(subjects);
+    let gpa_delta = gpa_delta(subjects);
+    CalculatedGPA {
+        weighted_gpa,
+        unweighted_gpa,
+        gpa_delta,
+    }
+}
+
+pub fn gpa_delta(subjects: &[Subject]) -> f64 {
+    let total_weight = subjects
+        .iter()
+        .filter(|subject| !subject.gpa.is_nan())
+        .fold(0.0, |total_weight, subject| total_weight + subject.weight);
+    let subject_gpa_delta = 0.3; // Currently is 0.3 for all ScoreMappingConfig when not changing from F
+    subject_gpa_delta / total_weight
+}
+
+pub fn calculate_weighted_gpa(subjects: &[Subject]) -> f64 {
     let total_gpa: f64 = subjects
         .iter()
         .filter(|subject| !subject.gpa.is_nan())
@@ -88,17 +114,17 @@ pub fn calculate_gpa(subjects: &[Subject]) -> f64 {
 }
 
 pub fn calculate_unweighted_gpa(subjects: &[Subject]) -> f64 {
-    let total_gpa: f64 = subjects
+    let total_unweighted_gpa: f64 = subjects
         .iter()
         .filter(|subject| !subject.unweighted_gpa.is_nan())
         .fold(0.0, |total_gpa, subject| {
             total_gpa + subject.unweighted_gpa * subject.weight
         });
-    let total_weight = subjects
+    let total_unweighted_weight = subjects
         .iter()
         .filter(|subject| !subject.unweighted_gpa.is_nan())
         .fold(0.0, |total_weight, subject| total_weight + subject.weight);
-    total_gpa / total_weight
+    total_unweighted_gpa / total_unweighted_weight
 }
 
 pub async fn get_gpa(client: &reqwest::Client, semester_id: u64) -> f64 {

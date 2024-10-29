@@ -8,7 +8,7 @@ use clap::{Parser, Subcommand};
 use colored::Colorize;
 use config::*;
 use futures::future::join_all;
-use gpa::{calculate_gpa, calculate_unweighted_gpa, default_score_mapping_lists, get_gpa};
+use gpa::*;
 use semester::*;
 use std::sync::Arc;
 use subject::*;
@@ -98,10 +98,10 @@ async fn main() {
 
     let gpa = gpa_handle.await.unwrap();
     let calculated_gpa = calculate_gpa(&subjects);
-    let unweighted_gpa = calculate_unweighted_gpa(&subjects);
     println!("GPA: {}", gpa);
-    println!("Calculated GPA: {:.2}", calculated_gpa);
-    println!("Calculated Unweighted GPA: {:.2}", unweighted_gpa);
+    println!("Calculated GPA: {:.2}", calculated_gpa.weighted_gpa);
+    println!("Calculated Unweighted GPA: {:.2}", calculated_gpa.unweighted_gpa);
+    println!("GPA Delta: {:.2}", calculated_gpa.gpa_delta);
 }
 
 fn select_semester(semesters: &[Semester]) -> Semester {
