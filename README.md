@@ -75,6 +75,11 @@ cargo install --path .
 
 ## FAQ
 
+### Can this change my GPA?
+
+No tls-xb only fetches data from <https://tsinglanstudent.schoolis.cn/api>
+to calculate your GPA, which does not expose an api to change your GPA.
+
 ### What is GPA Delta?
 
 GPA Delta is the change in GPA when the grade of a subject increases or drops
