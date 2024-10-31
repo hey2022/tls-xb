@@ -4,12 +4,17 @@ use text_io::read;
 
 #[derive(Deserialize, Serialize, Default)]
 pub struct Config {
+    pub logins: Vec<LoginDetails>,
+}
+
+#[derive(Deserialize, Serialize, Default, Clone)]
+pub struct LoginDetails {
     pub name: String,
     pub password: String,
     pub timestamp: u64,
 }
 
-pub fn login() {
+pub fn login() -> LoginDetails {
     print!("Username: ");
     let name = read!();
     let password = rpassword::prompt_password("Password: ").unwrap();
@@ -18,12 +23,11 @@ pub fn login() {
         .unwrap()
         .as_secs();
     let hashed_password = get_hashed_password(password, timestamp);
-    let config = Config {
+    LoginDetails {
         name,
         password: hashed_password,
         timestamp,
-    };
-    confy::store("tls-xb", "config", config).unwrap();
+    }
 }
 
 fn get_hashed_password(password: String, timestamp: u64) -> String {
@@ -32,6 +36,10 @@ fn get_hashed_password(password: String, timestamp: u64) -> String {
     let combined = hash + &timestamp;
     let combined_hash = format!("{:X}", md5::compute(combined));
     combined_hash
+}
+
+pub fn save_config(config: &Config) {
+    confy::store("tls-xb", "config", config).unwrap();
 }
 
 pub fn get_config() -> Config {

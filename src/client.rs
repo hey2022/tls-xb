@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::config::LoginDetails;
 use base64::Engine as _;
 use image::{DynamicImage, ImageFormat};
 use serde::Serialize;
@@ -12,15 +12,15 @@ struct Payload {
     timestamp: u64,
 }
 
-pub async fn login(config: &Config) -> reqwest::Client {
+pub async fn login(login_details: &LoginDetails) -> reqwest::Client {
     let client = reqwest::Client::builder()
         .cookie_store(true)
         .build()
         .unwrap();
     let payload = Payload {
-        name: config.name.clone(),
-        password: config.password.clone(),
-        timestamp: config.timestamp,
+        name: login_details.name.clone(),
+        password: login_details.password.clone(),
+        timestamp: login_details.timestamp,
     };
     let captcha = get_captcha(&client).await;
     let response: serde_json::Value = client

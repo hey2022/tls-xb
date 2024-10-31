@@ -6,7 +6,6 @@ mod subject;
 
 use clap::{Parser, Subcommand};
 use colored::Colorize;
-use config::*;
 use futures::future::join_all;
 use gpa::*;
 use semester::*;
@@ -28,7 +27,15 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    Login,
+    #[clap(subcommand)]
+    Login(LoginActions),
+}
+
+#[derive(Subcommand)]
+enum LoginActions {
+    Add,
+    Remove,
+    List,
 }
 
 #[tokio::main]
@@ -36,8 +43,27 @@ async fn main() {
     let cli = Cli::parse();
     if let Some(command) = cli.command {
         match command {
-            Commands::Login => {
-                login();
+            Commands::Login(action) => {
+                match action {
+                    LoginActions::Add => {
+                        let mut config = config::get_config();
+                        let login = config::login();
+                        config.logins.push(login);
+                        config::save_config(&config);
+                    }
+                    LoginActions::Remove => {
+                        let mut config = config::get_config();
+                        let index = select_login(&config.logins);
+                        config.logins.remove(index);
+                        config::save_config(&config);
+                    }
+                    LoginActions::List => {
+                        let config = config::get_config();
+                        for (i, login) in config.logins.iter().enumerate() {
+                            println!("{i:2}: {}", login.name);
+                        }
+                    }
+                }
                 std::process::exit(0);
             }
         }
@@ -50,10 +76,11 @@ async fn main() {
             .to_str()
             .unwrap()
     );
-    let config = get_config();
+    let config = config::get_config();
+    let login = config.logins[select_login(&config.logins)].clone();
 
     println!(":: Logging in...");
-    let client = Arc::new(client::login(&config).await);
+    let client = Arc::new(client::login(&login).await);
 
     println!(":: Fetching semesters...");
     let semesters = get_semesters(&client).await;
@@ -105,6 +132,18 @@ async fn main() {
         calculated_gpa.unweighted_gpa
     );
     println!("GPA Delta: {:.2}", calculated_gpa.gpa_delta);
+}
+
+fn select_login(logins: &[config::LoginDetails]) -> usize {
+    if logins.len() == 1 {
+        return 0;
+    }
+    for (i, login) in logins.iter().enumerate() {
+        println!("{i:2}: {}", login.name);
+    }
+    print!("Choose a login: ");
+    let selection: usize = read!();
+    selection
 }
 
 fn select_semester(semesters: &[Semester]) -> Semester {
