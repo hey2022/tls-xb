@@ -100,7 +100,10 @@ async fn main() {
     let calculated_gpa = calculate_gpa(&subjects);
     println!("GPA: {}", gpa);
     println!("Calculated GPA: {:.2}", calculated_gpa.weighted_gpa);
-    println!("Calculated Unweighted GPA: {:.2}", calculated_gpa.unweighted_gpa);
+    println!(
+        "Calculated Unweighted GPA: {:.2}",
+        calculated_gpa.unweighted_gpa
+    );
     println!("GPA Delta: {:.2}", calculated_gpa.gpa_delta);
 }
 
