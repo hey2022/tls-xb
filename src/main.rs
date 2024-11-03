@@ -186,8 +186,7 @@ fn colorize(string: &str, score_level: &str) -> String {
         'A' => "green",
         'B' => "blue",
         'C' => "yellow",
-        'D' => "red",
-        'F' => "red",
+        'D' | 'F' => "red",
         _ => "white",
     };
     if score_level == "A+" || score_level == "F" {
