@@ -52,7 +52,7 @@ pub fn get_score_mapping_list_id(subject_detail: &SubjectDetail) -> ScoreMapping
 
 pub fn gpa_from_score(total_score: f64, score_mapping_list: &[ScoreMappingConfig]) -> f64 {
     let total_score = (total_score * 10.0).round() / 10.0;
-    for config in score_mapping_list.iter() {
+    for config in score_mapping_list {
         if config.min_value <= total_score && config.max_value >= total_score {
             return config.gpa;
         }
@@ -65,7 +65,7 @@ pub fn score_level_from_score(
     score_mapping_list: &[ScoreMappingConfig],
 ) -> String {
     let total_score = (total_score * 10.0).round() / 10.0;
-    for config in score_mapping_list.iter() {
+    for config in score_mapping_list {
         if config.min_value <= total_score && config.max_value >= total_score {
             return config.display_name.clone();
         }

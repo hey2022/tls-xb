@@ -92,7 +92,7 @@ async fn main() {
         subjects.push(subject);
     }
 
-    for subject in subjects.iter() {
+    for subject in &subjects {
         print_subject(subject);
     }
 
@@ -141,7 +141,7 @@ fn print_subject(subject: &Subject) {
         subject.gpa,
         subject.score_mapping_list_id.to_string() + if subject.elective { " Elective" } else { "" },
     )];
-    for evaluation_project in subject.evaluation_projects.iter() {
+    for evaluation_project in &subject.evaluation_projects {
         if evaluation_project.score_is_null {
             continue;
         }
@@ -150,7 +150,7 @@ fn print_subject(subject: &Subject) {
         if evaluation_project.evaluation_project_list.is_empty() {
             continue;
         }
-        for evaluation_project in evaluation_project.evaluation_project_list.iter() {
+        for evaluation_project in &evaluation_project.evaluation_project_list {
             if !evaluation_project.score_is_null {
                 let mut row = get_evaluation_project_row(evaluation_project);
                 row.0.insert_str(0, "- ");
