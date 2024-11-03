@@ -6,7 +6,7 @@ use std::collections::HashMap;
 
 pub async fn get_subject_ids(client: &reqwest::Client, semester_id: u64) -> Vec<u64> {
     let response: serde_json::Value = client
-        .get(format!("https://tsinglanstudent.schoolis.cn/api/LearningTask/GetStuSubjectListForSelect?semesterId={}", semester_id))
+        .get(format!("https://tsinglanstudent.schoolis.cn/api/LearningTask/GetStuSubjectListForSelect?semesterId={semester_id}"))
         .send()
         .await
         .unwrap()
@@ -83,7 +83,7 @@ async fn get_subject_detail(
     subject_id: u64,
 ) -> SubjectDetail {
     let response: serde_json::Value = client
-        .get(format!("https://tsinglanstudent.schoolis.cn/api/LearningTask/GetList?semesterId={}&subjectId={}&pageIndex=1&pageSize=1", semester_id, subject_id))
+        .get(format!("https://tsinglanstudent.schoolis.cn/api/LearningTask/GetList?semesterId={semester_id}&subjectId={subject_id}&pageIndex=1&pageSize=1"))
         .send()
         .await.unwrap()
         .json()
@@ -93,8 +93,7 @@ async fn get_subject_detail(
         .expect("Failed to get task id");
     let response: serde_json::Value = client
         .get(format!(
-            "https://tsinglanstudent.schoolis.cn/api/LearningTask/GetDetail?learningTaskId={}",
-            task_id
+            "https://tsinglanstudent.schoolis.cn/api/LearningTask/GetDetail?learningTaskId={task_id}",
         ))
         .send()
         .await

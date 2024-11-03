@@ -98,7 +98,7 @@ async fn main() {
 
     let gpa = gpa_handle.await.unwrap();
     let calculated_gpa = calculate_gpa(&subjects);
-    println!("GPA: {}", gpa);
+    println!("GPA: {gpa}");
     println!("Calculated GPA: {:.2}", calculated_gpa.weighted_gpa);
     println!(
         "Calculated Unweighted GPA: {:.2}",
@@ -121,7 +121,7 @@ fn select_semester(semesters: &[Semester]) -> Semester {
             current_semester = i;
         }
     }
-    print!("Choose a semester [{}]: ", current_semester);
+    print!("Choose a semester [{current_semester}]: ");
     let mut input: String = read!("{}\n");
     input = input.trim().to_string();
     if !input.is_empty() {
@@ -162,7 +162,7 @@ fn print_subject(subject: &Subject) {
         .with(Disable::row(Rows::first()))
         .with(Style::rounded())
         .to_string();
-    println!("{}", table);
+    println!("{table}");
 }
 
 fn get_evaluation_project_row(

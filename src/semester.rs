@@ -24,7 +24,7 @@ where
     // Bug in chrono preventing parsing "%s%3f%z"
     let (millis, offset) = time.split_at(time.len() - 5);
     let millis = millis.parse::<f64>().unwrap() / 1000.0;
-    DateTime::parse_from_str(format!("{}{}", millis, offset).as_str(), "%s%.3f%z")
+    DateTime::parse_from_str(format!("{millis}{offset}").as_str(), "%s%.3f%z")
         .map_err(Error::custom)
 }
 

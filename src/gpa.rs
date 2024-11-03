@@ -130,8 +130,7 @@ pub fn calculate_unweighted_gpa(subjects: &[Subject]) -> f64 {
 pub async fn get_gpa(client: &reqwest::Client, semester_id: u64) -> f64 {
     let response: serde_json::Value = client
         .get(format!(
-            "https://tsinglanstudent.schoolis.cn/api/DynamicScore/GetGpa?semesterId={}",
-            semester_id
+            "https://tsinglanstudent.schoolis.cn/api/DynamicScore/GetGpa?semesterId={semester_id}",
         ))
         .send()
         .await

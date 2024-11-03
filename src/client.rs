@@ -25,8 +25,7 @@ pub async fn login(config: &Config) -> reqwest::Client {
     let captcha = get_captcha(&client).await;
     let response: serde_json::Value = client
         .post(format!(
-            "https://tsinglanstudent.schoolis.cn/api/MemberShip/Login?captcha={}",
-            captcha
+            "https://tsinglanstudent.schoolis.cn/api/MemberShip/Login?captcha={captcha}",
         ))
         .json(&payload)
         .send()
@@ -42,7 +41,7 @@ pub async fn login(config: &Config) -> reqwest::Client {
         match state {
             1180038 => panic!("Captcha failed"),
             1010076 => panic!("Invalid username or password, try running 'tls-xb login'"),
-            _ => panic!("Unknown error state: {}", state),
+            _ => panic!("Unknown error state: {state}"),
         }
     }
     client
