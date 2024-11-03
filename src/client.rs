@@ -1,8 +1,6 @@
 use crate::config::Config;
 use base64::Engine as _;
-use image::{DynamicImage, ImageFormat};
 use serde::Serialize;
-use std::io::Cursor;
 use text_io::read;
 
 #[derive(Serialize)]
@@ -67,9 +65,7 @@ pub async fn get_captcha(client: &reqwest::Client) -> String {
     let decoded_captcha = base64::engine::general_purpose::STANDARD
         .decode(encoded_captcha.trim_start_matches("data:image/png;base64,"))
         .expect("Failed to decode base64 data");
-    let image =
-        image::load(Cursor::new(decoded_captcha), ImageFormat::Png).expect("Failed to load image");
-    let image = DynamicImage::ImageRgba8(image.to_rgba8());
+    let image = image::load_from_memory(&decoded_captcha).expect("Failed to load image");
     let conf = viuer::Config::default();
     print!("\x1B[2J"); // clear terminal screen
     viuer::print(&image, &conf).expect("Failed to print image");
