@@ -217,10 +217,10 @@ async fn login() -> reqwest::Client {
     let mut config;
     let mut login_times = 0;
     while login_times < 3 {
-        config::login();
-        config = config::get_config();
+        config = config::login();
         login_times += 1;
         if let Ok(client) = client::login(&config).await {
+            config::save_config(&config);
             println!("Successfully logined!");
             return client;
         }
