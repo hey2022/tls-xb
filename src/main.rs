@@ -7,6 +7,7 @@ mod subject;
 use clap::{Parser, Subcommand};
 use client::LoginError;
 use colored::Colorize;
+use config::Config;
 use futures::future::join_all;
 use gpa::*;
 use semester::*;
@@ -34,15 +35,17 @@ enum Commands {
 #[tokio::main]
 async fn main() {
     let cli = Cli::parse();
+    let mut config;
     if let Some(command) = cli.command {
         match command {
             Commands::Login => {
-                login().await;
-                std::process::exit(0);
+                config = config::login();
+                login(&mut config).await;
             }
         }
     }
-    let client = login().await;
+    config = config::get_config();
+    let client = login(&mut config).await;
     let client = Arc::new(client);
 
     println!(":: Fetching semesters...");
@@ -185,8 +188,7 @@ fn colorize(string: &str, score_level: &str) -> String {
     string.color(color).to_string()
 }
 
-async fn login() -> reqwest::Client {
-    let mut config = config::get_config();
+async fn login(config: &mut Config) -> reqwest::Client {
     println!(
         ":: Getting config.toml from {}...",
         confy::get_configuration_file_path("tls-xb", "config")
@@ -199,16 +201,16 @@ async fn login() -> reqwest::Client {
     let mut client;
     let mut login_times = 0;
     while login_times < 3 {
-        client = client::login(&config).await;
+        client = client::login(config).await;
         login_times += 1;
         match client {
             Ok(client) => {
-                config::save_config(&config);
+                config::save_config(config);
                 println!("Successfully logined and saved.");
                 return client;
             }
             Err(LoginError::IncorrectLogin(msg)) => {
-                config = config::login();
+                *config = config::login();
                 println!("{msg}");
                 println!("Sorry, try again.");
             }
