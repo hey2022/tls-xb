@@ -5,8 +5,8 @@ mod semester;
 mod subject;
 
 use clap::{Parser, Subcommand};
+use client::LoginError;
 use colored::Colorize;
-use config::*;
 use futures::future::join_all;
 use gpa::*;
 use semester::*;
@@ -37,12 +37,12 @@ async fn main() {
     if let Some(command) = cli.command {
         match command {
             Commands::Login => {
-                login();
+                login().await;
                 std::process::exit(0);
             }
         }
     }
-
+    let config = config::get_config();
     println!(
         ":: Getting config.toml from {}...",
         confy::get_configuration_file_path("tls-xb", "config")
@@ -50,10 +50,28 @@ async fn main() {
             .to_str()
             .unwrap()
     );
-    let config = get_config();
 
     println!(":: Logging in...");
-    let client = Arc::new(client::login(&config).await);
+    let client = client::login(&config).await;
+    let client = match client {
+        Ok(t) => t,
+        Err(e) => match e {
+            LoginError::IncorrectLogin(msg) => {
+                println!("{msg}");
+                println!("Invalid username or password, please try again.");
+                login().await
+            }
+            LoginError::IncorrectCaptach(msg) => {
+                println!("{msg}");
+                panic!("Captcha failed.");
+            }
+            LoginError::ErrorCode((msg, state)) => {
+                println!("{msg}");
+                panic!("Unknown error state: {state}.");
+            }
+        },
+    };
+    let client = Arc::new(client);
 
     println!(":: Fetching semesters...");
     let semesters = get_semesters(&client).await;
@@ -193,4 +211,20 @@ fn colorize(string: &str, score_level: &str) -> String {
         return string.color(color).bold().to_string();
     }
     string.color(color).to_string()
+}
+
+async fn login() -> reqwest::Client {
+    let mut config;
+    let mut login_times = 0;
+    while login_times < 3 {
+        config::login();
+        config = config::get_config();
+        login_times += 1;
+        if let Ok(client) = client::login(&config).await {
+            println!("Successfully logined!");
+            return client;
+        }
+        println!("Sorry, try again.");
+    }
+    panic!("{login_times} incorrect login attempts.");
 }
