@@ -5,8 +5,9 @@ mod semester;
 mod subject;
 
 use clap::{Parser, Subcommand};
+use client::LoginError;
 use colored::Colorize;
-use config::*;
+use config::Config;
 use futures::future::join_all;
 use gpa::*;
 use semester::*;
@@ -34,26 +35,18 @@ enum Commands {
 #[tokio::main]
 async fn main() {
     let cli = Cli::parse();
+    let mut config;
     if let Some(command) = cli.command {
         match command {
             Commands::Login => {
-                login();
-                std::process::exit(0);
+                config = config::login();
+                login(&mut config).await;
             }
         }
     }
-
-    println!(
-        ":: Getting config.toml from {}...",
-        confy::get_configuration_file_path("tls-xb", "config")
-            .unwrap()
-            .to_str()
-            .unwrap()
-    );
-    let config = get_config();
-
-    println!(":: Logging in...");
-    let client = Arc::new(client::login(&config).await);
+    config = config::get_config();
+    let client = login(&mut config).await;
+    let client = Arc::new(client);
 
     println!(":: Fetching semesters...");
     let semesters = get_semesters(&client).await;
@@ -193,4 +186,47 @@ fn colorize(string: &str, score_level: &str) -> String {
         return string.color(color).bold().to_string();
     }
     string.color(color).to_string()
+}
+
+async fn login(config: &mut Config) -> reqwest::Client {
+    println!(
+        ":: Getting config.toml from {}...",
+        confy::get_configuration_file_path("tls-xb", "config")
+            .unwrap()
+            .to_str()
+            .unwrap()
+    );
+
+    println!(":: Logging in...");
+    let mut client;
+    let login_limit = 3;
+    for _ in 1..=login_limit {
+        client = client::login(config).await;
+        match client {
+            Ok(client) => {
+                config::save_config(config);
+                println!("Successfully logined and saved.");
+                return client;
+            }
+            Err(LoginError::IncorrectLogin(msg)) => {
+                println!("{msg}");
+                println!("Sorry, try again.");
+                *config = config::login();
+            }
+            Err(LoginError::ErrorCode((msg, state))) => {
+                println!("{msg}");
+                println!("Unknown error with code {state}, trying again.");
+            }
+            Err(LoginError::IncorrectCaptcha(msg)) => {
+                println!("{msg}");
+                println!("Sorry, wrong captcha, try again.");
+            }
+        }
+    }
+    if let Ok(client) = client::login(config).await {
+        config::save_config(config);
+        println!("Successfully logined and saved.");
+        return client;
+    }
+    panic!("{login_limit} incorrect login attempts.");
 }

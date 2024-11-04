@@ -12,7 +12,13 @@ struct Payload {
     timestamp: u64,
 }
 
-pub async fn login(config: &Config) -> reqwest::Client {
+pub enum LoginError {
+    IncorrectCaptcha(String),
+    IncorrectLogin(String),
+    ErrorCode((String, i32)),
+}
+
+pub async fn login(config: &Config) -> Result<reqwest::Client, LoginError> {
     let client = reqwest::Client::builder()
         .cookie_store(true)
         .build()
@@ -36,15 +42,12 @@ pub async fn login(config: &Config) -> reqwest::Client {
         .unwrap();
 
     let state = serde_json::from_value(response["state"].clone()).unwrap();
-    if state != 0 {
-        println!("{}", response["msg"]);
-        match state {
-            1180038 => panic!("Captcha failed"),
-            1010076 => panic!("Invalid username or password, try running 'tls-xb login'"),
-            _ => panic!("Unknown error state: {state}"),
-        }
+    match state {
+        0 => Ok(client),
+        1180038 => Err(LoginError::IncorrectCaptcha(response["msg"].to_string())),
+        13 | 1010076 => Err(LoginError::IncorrectLogin(response["msg"].to_string())),
+        _ => Err(LoginError::ErrorCode((response["msg"].to_string(), state))),
     }
-    client
 }
 
 pub async fn get_captcha(client: &reqwest::Client) -> String {
