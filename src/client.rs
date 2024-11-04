@@ -13,7 +13,7 @@ struct Payload {
 }
 
 pub enum LoginError {
-    IncorrectCaptach(String),
+    IncorrectCaptcha(String),
     IncorrectLogin(String),
     ErrorCode((String, i32)),
 }
@@ -44,7 +44,7 @@ pub async fn login(config: &Config) -> Result<reqwest::Client, LoginError> {
     let state = serde_json::from_value(response["state"].clone()).unwrap();
     match state {
         0 => Ok(client),
-        1180038 => Err(LoginError::IncorrectCaptach(response["msg"].to_string())),
+        1180038 => Err(LoginError::IncorrectCaptcha(response["msg"].to_string())),
         13 | 1010076 => Err(LoginError::IncorrectLogin(response["msg"].to_string())),
         _ => Err(LoginError::ErrorCode((response["msg"].to_string(), state))),
     }

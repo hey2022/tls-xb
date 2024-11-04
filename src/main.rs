@@ -42,35 +42,7 @@ async fn main() {
             }
         }
     }
-    let config = config::get_config();
-    println!(
-        ":: Getting config.toml from {}...",
-        confy::get_configuration_file_path("tls-xb", "config")
-            .unwrap()
-            .to_str()
-            .unwrap()
-    );
-
-    println!(":: Logging in...");
-    let client = client::login(&config).await;
-    let client = match client {
-        Ok(t) => t,
-        Err(e) => match e {
-            LoginError::IncorrectLogin(msg) => {
-                println!("{msg}");
-                println!("Invalid username or password, please try again.");
-                login().await
-            }
-            LoginError::IncorrectCaptach(msg) => {
-                println!("{msg}");
-                panic!("Captcha failed.");
-            }
-            LoginError::ErrorCode((msg, state)) => {
-                println!("{msg}");
-                panic!("Unknown error state: {state}.");
-            }
-        },
-    };
+    let client = login().await;
     let client = Arc::new(client);
 
     println!(":: Fetching semesters...");
@@ -214,17 +186,40 @@ fn colorize(string: &str, score_level: &str) -> String {
 }
 
 async fn login() -> reqwest::Client {
-    let mut config;
+    let mut config = config::get_config();
+    println!(
+        ":: Getting config.toml from {}...",
+        confy::get_configuration_file_path("tls-xb", "config")
+            .unwrap()
+            .to_str()
+            .unwrap()
+    );
+
+    println!(":: Logging in...");
+    let mut client;
     let mut login_times = 0;
     while login_times < 3 {
-        config = config::login();
+        client = client::login(&config).await;
         login_times += 1;
-        if let Ok(client) = client::login(&config).await {
-            config::save_config(&config);
-            println!("Successfully logined!");
-            return client;
+        match client {
+            Ok(client) => {
+                config::save_config(&config);
+                println!("Successfully logined and saved.");
+                return client;
+            }
+            Err(LoginError::IncorrectLogin(msg)) => {
+                config = config::login();
+                println!("{msg}");
+                println!("Sorry, try again.");
+            }
+            Err(LoginError::ErrorCode(state)) => {
+                println!("Unkown error with code {}, trying again.", state.1);
+            }
+            Err(LoginError::IncorrectCaptcha(msg)) => {
+                println!("{msg}");
+                println!("Sorry, wrong captcha, try again.");
+            }
         }
-        println!("Sorry, try again.");
     }
     panic!("{login_times} incorrect login attempts.");
 }
