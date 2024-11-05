@@ -135,16 +135,31 @@ async fn get_subject_evaluation_projects(
     let evaluation_projects: Vec<EvaluationProject> =
         serde_json::from_value(response["data"]["evaluationProjectList"].clone())
             .expect("Failed to get evaluation projects");
-    let total_proportion: f64 = evaluation_projects.iter().filter(|e| !e.score_is_null).map(|e| e.proportion).sum();
-    evaluation_projects.into_iter().filter(|e| !e.score_is_null).map(|mut e| {
-        e.adjusted_proportion = Some(e.proportion / total_proportion * 100.0);
-        e
-    }).collect()
+    let total_proportion: f64 = evaluation_projects
+        .iter()
+        .filter(|e| !e.score_is_null)
+        .map(|e| e.proportion)
+        .sum();
+    evaluation_projects
+        .into_iter()
+        .filter(|e| !e.score_is_null)
+        .map(|mut e| {
+            e.adjusted_proportion = Some(e.proportion / total_proportion * 100.0);
+            e
+        })
+        .collect()
 }
 
 fn get_subject_score(evaluation_projects: &[EvaluationProject]) -> f64 {
-    let total_proportion: f64 = evaluation_projects.iter().filter(|e| !e.score_is_null).map(|e| e.proportion).sum();
-    let total_score: f64 = evaluation_projects.iter().map(|e| e.score * e.proportion).sum();
+    let total_proportion: f64 = evaluation_projects
+        .iter()
+        .filter(|e| !e.score_is_null)
+        .map(|e| e.proportion)
+        .sum();
+    let total_score: f64 = evaluation_projects
+        .iter()
+        .map(|e| e.score * e.proportion)
+        .sum();
     total_score / total_proportion
 }
 
