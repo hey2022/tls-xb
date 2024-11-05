@@ -169,7 +169,7 @@ fn get_evaluation_project_row(
         format!("{:.1}", evaluation_project.score),
         &evaluation_project.score_level,
         evaluation_project.gpa,
-        format!("{}%", evaluation_project.proportion),
+        format!("{}%({}%)", evaluation_project.adjusted_proportion.unwrap(), evaluation_project.proportion),
     )
 }
 

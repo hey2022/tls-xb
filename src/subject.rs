@@ -2,7 +2,7 @@ use crate::gpa::*;
 use chrono::{DateTime, Duration, FixedOffset};
 use itertools::Itertools;
 use serde::Deserialize;
-use std::{collections::HashMap, f64::NAN};
+use std::collections::HashMap;
 
 pub async fn get_subject_ids(client: &reqwest::Client, semester_id: u64) -> Vec<u64> {
     let response: serde_json::Value = client
@@ -43,7 +43,7 @@ pub async fn get_subject(
     score_mapping_lists: &HashMap<ScoreMappingId, Vec<ScoreMappingConfig>>,
 ) -> Subject {
     let subject_detail = get_subject_detail(client, semester_id, subject_id).await;
-    let evaluation_projects = adjust_evaluation_project_weights(get_subject_evaluation_projects(client, &subject_detail).await);
+    let evaluation_projects = get_subject_evaluation_projects(client, &subject_detail).await;
     let total_score = get_subject_score(&evaluation_projects);
     let score_mapping_list_id = get_score_mapping_list_id(&subject_detail);
     let score_mapping_list = &score_mapping_lists[&score_mapping_list_id];
@@ -117,6 +117,8 @@ pub struct EvaluationProject {
     pub score_is_null: bool,
     #[serde(default)]
     pub evaluation_project_list: Vec<EvaluationProject>,
+    #[serde(skip)]
+    pub adjusted_proportion: Option<f64>,
 }
 
 async fn get_subject_evaluation_projects(
@@ -133,26 +135,17 @@ async fn get_subject_evaluation_projects(
     let evaluation_projects: Vec<EvaluationProject> =
         serde_json::from_value(response["data"]["evaluationProjectList"].clone())
             .expect("Failed to get evaluation projects");
-    evaluation_projects
-}
-
-fn adjust_evaluation_project_weights(evaluation_projects: Vec<EvaluationProject>) -> Vec<EvaluationProject> {
     let total_proportion: f64 = evaluation_projects.iter().filter(|e| !e.score_is_null).map(|e| e.proportion).sum();
-    if total_proportion == 0.0{
-        return Vec::new();
-    }
     evaluation_projects.into_iter().filter(|e| !e.score_is_null).map(|mut e| {
-        e.proportion = e.proportion / total_proportion * 100.0;
+        e.adjusted_proportion = Some(e.proportion / total_proportion * 100.0);
         e
     }).collect()
 }
 
 fn get_subject_score(evaluation_projects: &[EvaluationProject]) -> f64 {
-    if evaluation_projects.is_empty() {
-        return NAN;
-    }
-    let total_score: f64 = evaluation_projects.iter().map(|e| e.score * e.proportion / 100.0).sum();
-    total_score
+    let total_proportion: f64 = evaluation_projects.iter().filter(|e| !e.score_is_null).map(|e| e.proportion).sum();
+    let total_score: f64 = evaluation_projects.iter().map(|e| e.score * e.proportion).sum();
+    total_score / total_proportion
 }
 
 pub async fn get_elective_class_ids(
