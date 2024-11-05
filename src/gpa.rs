@@ -41,13 +41,14 @@ pub fn default_score_mapping_lists() -> HashMap<ScoreMappingId, Vec<ScoreMapping
 }
 
 pub fn get_score_mapping_list_id(subject_detail: &SubjectDetail) -> ScoreMappingId {
-    if subject_detail.subject_name.contains("AP")
-        || subject_detail.subject_name.contains("A Level")
-        || subject_detail.subject_name.contains("AS")
-    {
+    if is_weighted_subject(&subject_detail.subject_name) {
         return ScoreMappingId::Weighted;
     }
     ScoreMappingId::NonWeighted
+}
+
+pub fn is_weighted_subject(subject_name: &str) -> bool {
+    subject_name.contains("AP") || subject_name.contains("A Level") || subject_name.contains("AS")
 }
 
 pub fn gpa_from_score(total_score: f64, score_mapping_list: &[ScoreMappingConfig]) -> f64 {
@@ -77,16 +78,19 @@ pub struct CalculatedGPA {
     pub weighted_gpa: f64,
     pub unweighted_gpa: f64,
     pub gpa_delta: f64,
+    pub max_gpa: f64,
 }
 
 pub fn calculate_gpa(subjects: &[Subject]) -> CalculatedGPA {
     let weighted_gpa = calculate_weighted_gpa(subjects);
     let unweighted_gpa = calculate_unweighted_gpa(subjects);
     let gpa_delta = gpa_delta(subjects);
+    let max_gpa = calculate_max_gpa(subjects);
     CalculatedGPA {
         weighted_gpa,
         unweighted_gpa,
         gpa_delta,
+        max_gpa,
     }
 }
 
@@ -125,6 +129,20 @@ pub fn calculate_unweighted_gpa(subjects: &[Subject]) -> f64 {
         .filter(|subject| !subject.unweighted_gpa.is_nan())
         .fold(0.0, |total_weight, subject| total_weight + subject.weight);
     total_unweighted_gpa / total_unweighted_weight
+}
+
+pub fn calculate_max_gpa(subjects: &[Subject]) -> f64 {
+    let total_weight = subjects
+        .iter()
+        .filter(|subject| !subject.gpa.is_nan())
+        .fold(0.0, |total_weight, subject| total_weight + subject.weight);
+    let total_max_gpa: f64 = subjects
+        .iter()
+        .filter(|subject| !subject.gpa.is_nan())
+        .fold(0.0, |total_gpa, subject| {
+            total_gpa + subject.max_gpa * subject.weight
+        });
+    total_max_gpa / total_weight
 }
 
 pub async fn get_gpa(client: &reqwest::Client, semester_id: u64) -> f64 {
