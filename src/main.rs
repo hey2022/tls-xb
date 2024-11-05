@@ -139,8 +139,8 @@ fn print_subject(subject: &Subject) {
     let mut data = vec![(
         colorize(&subject.subject_name, &subject.score_level),
         format!("{:.1}", subject.total_score),
-        &subject.score_level,
-        subject.gpa,
+        subject.score_level.to_string(),
+        subject.gpa.to_string(),
         subject.score_mapping_list_id.to_string() + if subject.elective { " Elective" } else { "" },
     )];
     for evaluation_project in &subject.evaluation_projects {
@@ -149,6 +149,11 @@ fn print_subject(subject: &Subject) {
         }
         let row = get_evaluation_project_row(evaluation_project);
         data.push(row);
+        let tasks = get_evaluation_project_task_list_row(evaluation_project);
+        for task in tasks {
+            data.push(task);
+        }
+
         if evaluation_project.evaluation_project_list.is_empty() {
             continue;
         }
@@ -157,6 +162,11 @@ fn print_subject(subject: &Subject) {
                 let mut row = get_evaluation_project_row(evaluation_project);
                 row.0.insert_str(0, "- ");
                 data.push(row);
+            }
+            let mut tasks = get_evaluation_project_task_list_row(evaluation_project);
+            for task in &mut tasks {
+                task.0.insert(0, '-');
+                data.push(task.clone());
             }
         }
     }
@@ -169,20 +179,50 @@ fn print_subject(subject: &Subject) {
 
 fn get_evaluation_project_row(
     evaluation_project: &EvaluationProject,
-) -> (String, String, &String, f64, String) {
+) -> (String, String, String, String, String) {
     (
         colorize(
             &evaluation_project.evaluation_project_e_name,
             &evaluation_project.score_level,
         ),
         format!("{:.1}", evaluation_project.score),
-        &evaluation_project.score_level,
-        evaluation_project.gpa,
+        evaluation_project.score_level.to_string(),
+        evaluation_project.gpa.to_string(),
         format!(
             "{}% ({}%)",
             evaluation_project.adjusted_proportion, evaluation_project.proportion
         ),
     )
+}
+
+fn get_evaluation_project_task_list_row(
+    evaluation_project: &EvaluationProject,
+) -> Vec<(String, String, String, String, String)> {
+    let mut task_rows = Vec::new();
+    let learning_tasks: Vec<&LearningTask> = evaluation_project
+        .learning_task_and_exam_list
+        .iter()
+        .filter(|task| task.score.is_some())
+        .collect();
+    for learning_task in &learning_tasks {
+        let weight = evaluation_project.adjusted_proportion / learning_tasks.len() as f64;
+        let row = (
+            format!("- {}", learning_task.name),
+            format!(
+                "{:4} / {}",
+                learning_task.score.unwrap_or(f64::NAN),
+                learning_task.total_score
+            ),
+            format!(
+                "{:.2}%",
+                learning_task.score.unwrap_or(f64::NAN) / learning_task.total_score * 100.0
+            ),
+            String::new(),
+            format!("- {weight:.2}%"),
+        );
+        task_rows.push(row);
+    }
+    task_rows
 }
 
 fn colorize(string: &str, score_level: &str) -> String {
