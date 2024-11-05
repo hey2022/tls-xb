@@ -34,7 +34,10 @@ serde_json = "1.0.113"
 tabled = { version = "0.15", features = ["ansi"] }
 text_io = "0.1.12"
 tokio = { version = "1.36.0", features = ["rt-multi-thread", "macros"] }
-viuer = { version = "0.7.1", features = ["sixel"] }
+viuer = "0.7.1"
+
+[features]
+sixel = ["viuer/sixel"]
 
 # The profile that 'cargo dist' will build with
 [profile.dist]
