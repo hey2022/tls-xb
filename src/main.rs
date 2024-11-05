@@ -91,8 +91,17 @@ async fn main() {
 
     let gpa = gpa_handle.await.unwrap();
     let calculated_gpa = calculate_gpa(&subjects);
-    println!("GPA: {gpa}");
-    println!("Calculated GPA: {:.2}", calculated_gpa.weighted_gpa);
+    if gpa.is_nan() {
+        println!("GPA: Unreleased");
+    } else {
+        println!("GPA: {gpa}");
+    }
+    println!(
+        "Calculated GPA: {:.2} / {:.2} ({:.1}%)",
+        calculated_gpa.weighted_gpa,
+        calculated_gpa.max_gpa,
+        calculated_gpa.weighted_gpa / calculated_gpa.max_gpa * 100.0
+    );
     println!(
         "Calculated Unweighted GPA: {:.2}",
         calculated_gpa.unweighted_gpa
