@@ -143,24 +143,25 @@ async fn get_subject_evaluation_projects(
     evaluation_projects
         .into_iter()
         .map(|mut evaluation_project| {
-            if evaluation_project.score_is_null {
-                evaluation_project.adjusted_proportion = 0.0;
-            } else {
-            evaluation_project.adjusted_proportion = evaluation_project.proportion / total_proportion * 100.0;
-            }
+            evaluation_project.adjusted_proportion =
+                evaluation_project.proportion / total_proportion * 100.0;
             evaluation_project
         })
         .collect()
 }
 
 fn get_subject_score(evaluation_projects: &[EvaluationProject]) -> f64 {
-    if evaluation_projects.iter().filter(|evaluation_project| !evaluation_project.score_is_null).count() == 0{
-        return NAN;
-    }
-    evaluation_projects
+    if let Some(score) = evaluation_projects
         .iter()
-        .map(|evaluation_project| evaluation_project.score * evaluation_project.adjusted_proportion / 100.0)
-        .sum()
+        .filter(|evaluation_project| !evaluation_project.score_is_null)
+        .map(|evaluation_project| {
+            evaluation_project.score * evaluation_project.adjusted_proportion / 100.0
+        })
+        .reduce(|a, b| a + b)
+    {
+        return score;
+    }
+    NAN
 }
 
 pub async fn get_elective_class_ids(
