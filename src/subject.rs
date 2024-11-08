@@ -158,6 +158,7 @@ fn get_subject_score(evaluation_projects: &[EvaluationProject]) -> f64 {
         .sum();
     let total_score: f64 = evaluation_projects
         .iter()
+        .filter(|e| !e.score_is_null)
         .map(|e| e.score * e.proportion)
         .sum();
     total_score / total_proportion
