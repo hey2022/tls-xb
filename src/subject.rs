@@ -153,13 +153,13 @@ async fn get_subject_evaluation_projects(
 fn get_subject_score(evaluation_projects: &[EvaluationProject]) -> f64 {
     let total_proportion: f64 = evaluation_projects
         .iter()
-        .filter(|e| !e.score_is_null)
-        .map(|e| e.proportion)
+        .filter(|evaluation_project| !evaluation_project.score_is_null)
+        .map(|evaluation_project| evaluation_project.proportion)
         .sum();
     let total_score: f64 = evaluation_projects
         .iter()
-        .filter(|e| !e.score_is_null)
-        .map(|e| e.score * e.proportion)
+        .filter(|evaluation_project| !evaluation_project.score_is_null)
+        .map(|evaluation_project| evaluation_project.score * evaluation_project.proportion)
         .sum();
     total_score / total_proportion
 }
