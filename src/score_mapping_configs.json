@@ -4,73 +4,73 @@
       "displayName": "A+",
       "minValue": 97,
       "maxValue": 9999.9,
-      "gpa": 5.3
+      "gpa": 4.8
     },
     {
       "displayName": "A",
       "minValue": 93,
       "maxValue": 96.9,
-      "gpa": 5
+      "gpa": 4.5
     },
     {
       "displayName": "A-",
       "minValue": 90,
       "maxValue": 92.9,
-      "gpa": 4.7
+      "gpa": 4.2
     },
     {
       "displayName": "B+",
       "minValue": 87,
       "maxValue": 89.9,
-      "gpa": 4.3
+      "gpa": 3.9
     },
     {
       "displayName": "B",
       "minValue": 83,
       "maxValue": 86.9,
-      "gpa": 4
+      "gpa": 3.5
     },
     {
       "displayName": "B-",
       "minValue": 80,
       "maxValue": 82.9,
-      "gpa": 3.7
+      "gpa": 3.2
     },
     {
       "displayName": "C+",
       "minValue": 77,
       "maxValue": 79.9,
-      "gpa": 3.3
+      "gpa": 2.8
     },
     {
       "displayName": "C",
       "minValue": 73,
       "maxValue": 76.9,
-      "gpa": 3
+      "gpa": 2.5
     },
     {
       "displayName": "C-",
       "minValue": 70,
       "maxValue": 72.9,
-      "gpa": 2.7
+      "gpa": 2.2
     },
     {
       "displayName": "D+",
       "minValue": 67,
       "maxValue": 69.9,
-      "gpa": 2.3
+      "gpa": 1.8
     },
     {
       "displayName": "D",
       "minValue": 63,
       "maxValue": 66.9,
-      "gpa": 2
+      "gpa": 1.5
     },
     {
       "displayName": "D-",
       "minValue": 60,
       "maxValue": 62.9,
-      "gpa": 1.7
+      "gpa": 1.2
     },
     {
       "displayName": "F",
