@@ -2,7 +2,7 @@ use crate::gpa::*;
 use chrono::{DateTime, Duration, FixedOffset};
 use itertools::Itertools;
 use serde::Deserialize;
-use std::collections::HashMap;
+use std::{collections::HashMap, f64::NAN};
 
 pub async fn get_subject_ids(client: &reqwest::Client, semester_id: u64) -> Vec<u64> {
     let response: serde_json::Value = client
@@ -118,7 +118,7 @@ pub struct EvaluationProject {
     #[serde(default)]
     pub evaluation_project_list: Vec<EvaluationProject>,
     #[serde(skip)]
-    pub adjusted_proportion: Option<f64>,
+    pub adjusted_proportion: f64,
 }
 
 async fn get_subject_evaluation_projects(
@@ -142,26 +142,25 @@ async fn get_subject_evaluation_projects(
         .sum();
     evaluation_projects
         .into_iter()
-        .filter(|evaluation_project| !evaluation_project.score_is_null)
         .map(|mut evaluation_project| {
-            evaluation_project.adjusted_proportion = Some(evaluation_project.proportion / total_proportion * 100.0);
+            if evaluation_project.score_is_null {
+                evaluation_project.adjusted_proportion = 0.0;
+            } else {
+            evaluation_project.adjusted_proportion = evaluation_project.proportion / total_proportion * 100.0;
+            }
             evaluation_project
         })
         .collect()
 }
 
 fn get_subject_score(evaluation_projects: &[EvaluationProject]) -> f64 {
-    let total_proportion: f64 = evaluation_projects
+    if evaluation_projects.iter().filter(|evaluation_project| !evaluation_project.score_is_null).count() == 0{
+        return NAN;
+    }
+    evaluation_projects
         .iter()
-        .filter(|evaluation_project| !evaluation_project.score_is_null)
-        .map(|evaluation_project| evaluation_project.proportion)
-        .sum();
-    let total_score: f64 = evaluation_projects
-        .iter()
-        .filter(|evaluation_project| !evaluation_project.score_is_null)
-        .map(|evaluation_project| evaluation_project.score * evaluation_project.proportion)
-        .sum();
-    total_score / total_proportion
+        .map(|evaluation_project| evaluation_project.score * evaluation_project.adjusted_proportion / 100.0)
+        .sum()
 }
 
 pub async fn get_elective_class_ids(
