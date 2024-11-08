@@ -137,15 +137,15 @@ async fn get_subject_evaluation_projects(
             .expect("Failed to get evaluation projects");
     let total_proportion: f64 = evaluation_projects
         .iter()
-        .filter(|e| !e.score_is_null)
-        .map(|e| e.proportion)
+        .filter(|evaluation_project| !evaluation_project.score_is_null)
+        .map(|evaluation_project| evaluation_project.proportion)
         .sum();
     evaluation_projects
         .into_iter()
-        .filter(|e| !e.score_is_null)
-        .map(|mut e| {
-            e.adjusted_proportion = Some(e.proportion / total_proportion * 100.0);
-            e
+        .filter(|evaluation_project| !evaluation_project.score_is_null)
+        .map(|mut evaluation_project| {
+            evaluation_project.adjusted_proportion = Some(evaluation_project.proportion / total_proportion * 100.0);
+            evaluation_project
         })
         .collect()
 }
