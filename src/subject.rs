@@ -132,7 +132,7 @@ async fn get_subject_evaluation_projects(
         .await.unwrap()
         .json()
         .await.unwrap();
-    let evaluation_projects: Vec<EvaluationProject> =
+    let mut evaluation_projects: Vec<EvaluationProject> =
         serde_json::from_value(response["data"]["evaluationProjectList"].clone())
             .expect("Failed to get evaluation projects");
     let total_proportion: f64 = evaluation_projects
@@ -140,14 +140,11 @@ async fn get_subject_evaluation_projects(
         .filter(|evaluation_project| !evaluation_project.score_is_null)
         .map(|evaluation_project| evaluation_project.proportion)
         .sum();
+    for evaluation_project in &mut evaluation_projects {
+        evaluation_project.adjusted_proportion =
+            evaluation_project.proportion / total_proportion * 100.0;
+    }
     evaluation_projects
-        .into_iter()
-        .map(|mut evaluation_project| {
-            evaluation_project.adjusted_proportion =
-                evaluation_project.proportion / total_proportion * 100.0;
-            evaluation_project
-        })
-        .collect()
 }
 
 fn get_subject_score(evaluation_projects: &[EvaluationProject]) -> f64 {
