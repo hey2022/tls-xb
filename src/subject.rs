@@ -148,17 +148,14 @@ async fn get_subject_evaluation_projects(
 }
 
 fn get_subject_score(evaluation_projects: &[EvaluationProject]) -> f64 {
-    if let Some(score) = evaluation_projects
+    evaluation_projects
         .iter()
         .filter(|evaluation_project| !evaluation_project.score_is_null)
         .map(|evaluation_project| {
             evaluation_project.score * evaluation_project.adjusted_proportion / 100.0
         })
         .reduce(|a, b| a + b)
-    {
-        return score;
-    }
-    NAN
+        .unwrap_or(NAN)
 }
 
 pub async fn get_elective_class_ids(
