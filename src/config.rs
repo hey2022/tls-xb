@@ -14,7 +14,7 @@ pub fn login() -> Config {
     print!("Username: ");
     io::stdout().flush().expect("Unable to flush stdout");
     let mut name = String::new();
-    std::io::stdin()
+    io::stdin()
         .read_line(&mut name)
         .expect("Failed to read line");
     name = name.trim().to_string();
