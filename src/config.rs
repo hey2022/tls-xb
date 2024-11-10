@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
+use std::io;
+use std::io::Write;
 use std::time::SystemTime;
-use text_io::read;
 
 #[derive(Deserialize, Serialize, Default)]
 pub struct Config {
@@ -11,7 +12,12 @@ pub struct Config {
 
 pub fn login() {
     print!("Username: ");
-    let name = read!();
+    io::stdout().flush().expect("Unable to flush stdout");
+    let mut name = String::new();
+    std::io::stdin()
+        .read_line(&mut name)
+        .expect("Failed to read line");
+    name = name.trim().to_string();
     let password = rpassword::prompt_password("Password: ").unwrap();
     let timestamp = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
