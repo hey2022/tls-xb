@@ -24,7 +24,7 @@ clap = { version = "4.5.0", features = ["derive"] }
 colored = "2.1.0"
 confy = "0.6.0"
 futures = "0.3.30"
-image = "0.24.9"
+image = { version = "0.25.4", default-features = false, features = ["rayon", "png"]}
 itertools = "0.12.1"
 md5 = "0.7.0"
 reqwest = { version = "0.11.24", default-features = false, features = ["json", "cookies", "rustls-tls"] }
@@ -34,7 +34,7 @@ serde_json = "1.0.113"
 tabled = { version = "0.15", features = ["ansi"] }
 text_io = "0.1.12"
 tokio = { version = "1.36.0", features = ["rt-multi-thread", "macros"] }
-viuer = "0.7.1"
+viuer = { version = "0.9.1" }
 
 [features]
 sixel = ["viuer/sixel"]
