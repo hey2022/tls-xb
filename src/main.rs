@@ -23,6 +23,8 @@ use text_io::read;
 #[command(author, version, about, long_about = None)]
 #[command(propagate_version = true)]
 struct Cli {
+    #[arg(short, long)]
+    tasks: bool,
     #[command(subcommand)]
     command: Option<Commands>,
 }
@@ -36,7 +38,7 @@ enum Commands {
 async fn main() {
     let cli = Cli::parse();
     let mut config;
-    if let Some(command) = cli.command {
+    if let Some(command) = &cli.command {
         match command {
             Commands::Login => {
                 config = config::login();
@@ -86,7 +88,7 @@ async fn main() {
     }
 
     for subject in &subjects {
-        print_subject(subject);
+        print_subject(subject, &cli);
     }
 
     let gpa = gpa_handle.await.unwrap();
@@ -132,7 +134,7 @@ fn select_semester(semesters: &[Semester]) -> Semester {
     semesters[current_semester].clone()
 }
 
-fn print_subject(subject: &Subject) {
+fn print_subject(subject: &Subject, cli: &Cli) {
     if subject.total_score.is_nan() {
         return;
     }
@@ -149,9 +151,11 @@ fn print_subject(subject: &Subject) {
         }
         let row = get_evaluation_project_row(evaluation_project);
         data.push(row);
-        let tasks = get_evaluation_project_task_list_row(evaluation_project);
-        for task in tasks {
-            data.push(task);
+        if cli.tasks {
+            let tasks = get_evaluation_project_task_list_row(evaluation_project);
+            for task in tasks {
+                data.push(task);
+            }
         }
 
         if evaluation_project.evaluation_project_list.is_empty() {
@@ -163,10 +167,12 @@ fn print_subject(subject: &Subject) {
                 row.0.insert_str(0, "- ");
                 data.push(row);
             }
-            let mut tasks = get_evaluation_project_task_list_row(evaluation_project);
-            for task in &mut tasks {
-                task.0.insert(0, '-');
-                data.push(task.clone());
+            if cli.tasks {
+                let mut tasks = get_evaluation_project_task_list_row(evaluation_project);
+                for task in &mut tasks {
+                    task.0.insert(0, '-');
+                    data.push(task.clone());
+                }
             }
         }
     }
