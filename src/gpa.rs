@@ -82,67 +82,23 @@ pub struct CalculatedGPA {
 }
 
 pub fn calculate_gpa(subjects: &[Subject]) -> CalculatedGPA {
-    let weighted_gpa = calculate_weighted_gpa(subjects);
-    let unweighted_gpa = calculate_unweighted_gpa(subjects);
-    let gpa_delta = gpa_delta(subjects);
-    let max_gpa = calculate_max_gpa(subjects);
-    CalculatedGPA {
-        weighted_gpa,
-        unweighted_gpa,
-        gpa_delta,
-        max_gpa,
+    let mut total_weight = 0.0;
+    let mut total_weighted_gpa = 0.0;
+    let mut total_unweighted_gpa = 0.0;
+    let mut total_max_gpa = 0.0;
+    for subject in subjects {
+        total_weight += subject.weight;
+        total_weighted_gpa += subject.gpa;
+        total_unweighted_gpa += subject.unweighted_gpa;
+        total_max_gpa += subject.max_gpa;
     }
-}
-
-pub fn gpa_delta(subjects: &[Subject]) -> f64 {
-    let total_weight = subjects
-        .iter()
-        .filter(|subject| !subject.gpa.is_nan())
-        .fold(0.0, |total_weight, subject| total_weight + subject.weight);
-    let subject_gpa_delta = 0.3; // Currently is 0.3 for all ScoreMappingConfig when not changing from F
-    subject_gpa_delta / total_weight
-}
-
-pub fn calculate_weighted_gpa(subjects: &[Subject]) -> f64 {
-    let total_gpa: f64 = subjects
-        .iter()
-        .filter(|subject| !subject.gpa.is_nan())
-        .fold(0.0, |total_gpa, subject| {
-            total_gpa + subject.gpa * subject.weight
-        });
-    let total_weight = subjects
-        .iter()
-        .filter(|subject| !subject.gpa.is_nan())
-        .fold(0.0, |total_weight, subject| total_weight + subject.weight);
-    total_gpa / total_weight
-}
-
-pub fn calculate_unweighted_gpa(subjects: &[Subject]) -> f64 {
-    let total_unweighted_gpa: f64 = subjects
-        .iter()
-        .filter(|subject| !subject.unweighted_gpa.is_nan())
-        .fold(0.0, |total_gpa, subject| {
-            total_gpa + subject.unweighted_gpa * subject.weight
-        });
-    let total_unweighted_weight = subjects
-        .iter()
-        .filter(|subject| !subject.unweighted_gpa.is_nan())
-        .fold(0.0, |total_weight, subject| total_weight + subject.weight);
-    total_unweighted_gpa / total_unweighted_weight
-}
-
-pub fn calculate_max_gpa(subjects: &[Subject]) -> f64 {
-    let total_weight = subjects
-        .iter()
-        .filter(|subject| !subject.gpa.is_nan())
-        .fold(0.0, |total_weight, subject| total_weight + subject.weight);
-    let total_max_gpa: f64 = subjects
-        .iter()
-        .filter(|subject| !subject.gpa.is_nan())
-        .fold(0.0, |total_gpa, subject| {
-            total_gpa + subject.max_gpa * subject.weight
-        });
-    total_max_gpa / total_weight
+    let gpa_delta = 0.3 / total_weight;
+    CalculatedGPA {
+        weighted_gpa: total_weighted_gpa / total_weight,
+        unweighted_gpa: total_unweighted_gpa / total_weight,
+        gpa_delta,
+        max_gpa: total_max_gpa / total_weight,
+    }
 }
 
 pub async fn get_gpa(client: &reqwest::Client, semester_id: u64) -> f64 {
