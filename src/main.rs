@@ -138,7 +138,7 @@ fn print_subject(subject: &Subject) {
     }
     let mut data = vec![(
         colorize(&subject.subject_name, &subject.score_level),
-        format!("{:.1}", subject.total_score),
+        format!("{}", (subject.total_score*10.0).round()/10.0),
         &subject.score_level,
         subject.gpa,
         subject.score_mapping_list_id.to_string() + if subject.elective { " Elective" } else { "" },
@@ -175,12 +175,12 @@ fn get_evaluation_project_row(
             &evaluation_project.evaluation_project_e_name,
             &evaluation_project.score_level,
         ),
-        format!("{:.1}", evaluation_project.score),
+        format!("{}", (evaluation_project.score*10.0).round()/10.0),
         &evaluation_project.score_level,
         evaluation_project.gpa,
         format!(
             "{}% ({}%)",
-            evaluation_project.adjusted_proportion, evaluation_project.proportion
+            (evaluation_project.adjusted_proportion*100.0).round()/100.0, (evaluation_project.proportion*100.0).round()/100.0
         ),
     )
 }
