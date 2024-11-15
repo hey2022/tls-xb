@@ -154,7 +154,7 @@ async fn get_subject_evaluation_projects(
             .sum();
         for sub_evaluation_project in &mut evaluation_project.evaluation_project_list {
             sub_evaluation_project.adjusted_proportion =
-                sub_evaluation_project.proportion / total_proportion * 100.0;
+                sub_evaluation_project.proportion / total_proportion * evaluation_project.adjusted_proportion;
         }
     }
     evaluation_projects
