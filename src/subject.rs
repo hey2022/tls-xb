@@ -155,6 +155,16 @@ async fn get_subject_evaluation_projects(
     for evaluation_project in &mut evaluation_projects {
         evaluation_project.adjusted_proportion =
             evaluation_project.proportion / total_proportion * 100.0;
+        let total_proportion: f64 = evaluation_project
+            .evaluation_project_list
+            .iter()
+            .filter(|evaluation_project| !evaluation_project.score_is_null)
+            .map(|evaluation_project| evaluation_project.proportion)
+            .sum();
+        for sub_evaluation_project in &mut evaluation_project.evaluation_project_list {
+            sub_evaluation_project.adjusted_proportion =
+                sub_evaluation_project.proportion / total_proportion * evaluation_project.adjusted_proportion;
+        }
     }
     evaluation_projects
 }
