@@ -118,10 +118,19 @@ pub struct EvaluationProject {
     pub score_level: String,
     pub gpa: f64,
     pub score_is_null: bool,
+    pub learning_task_and_exam_list: Vec<LearningTask>,
     #[serde(default)]
     pub evaluation_project_list: Vec<EvaluationProject>,
     #[serde(skip)]
     pub adjusted_proportion: f64,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LearningTask {
+    pub name: String,
+    pub score: Option<f64>,
+    pub total_score: f64,
 }
 
 async fn get_subject_evaluation_projects(
