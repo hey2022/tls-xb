@@ -8,7 +8,7 @@ repository = "https://github.com/hey2022/tls-xb"
 documentation = "https://github.com/hey2022/tls-xb"
 keywords = ["cli"]
 categories = ["command-line-interface"]
-version = "0.3.5"
+version = "0.3.6"
 edition = "2021"
 
 [package.metadata.wix]
@@ -40,18 +40,3 @@ viuer = "0.7.1"
 [profile.dist]
 inherits = "release"
 lto = "thin"
-
-# Config for 'cargo dist'
-[workspace.metadata.dist]
-# The preferred cargo-dist version to use in CI (Cargo.toml SemVer syntax)
-cargo-dist-version = "0.16.0"
-# CI backends to support
-ci = "github"
-# The installers to generate for each app
-installers = ["shell", "msi"]
-# Target platforms to build apps for (Rust target-triple syntax)
-targets = ["aarch64-apple-darwin", "x86_64-apple-darwin", "x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc"]
-# Publish jobs to run in CI
-pr-run-mode = "plan"
-# Whether to install an updater program
-install-updater = false
