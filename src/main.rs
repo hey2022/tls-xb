@@ -14,7 +14,7 @@ use semester::*;
 use std::sync::Arc;
 use subject::*;
 use tabled::{
-    settings::{object::Rows, Disable, Style},
+    settings::{object::Rows, Remove, Style},
     Table,
 };
 use text_io::read;
@@ -177,7 +177,7 @@ fn print_subject(subject: &Subject, cli: &Cli) {
         }
     }
     let table = Table::new(data)
-        .with(Disable::row(Rows::first()))
+        .with(Remove::row(Rows::first()))
         .with(Style::rounded())
         .to_string();
     println!("{table}");
