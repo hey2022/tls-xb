@@ -77,7 +77,6 @@ pub fn score_level_from_score(
 pub struct CalculatedGPA {
     pub weighted_gpa: f64,
     pub unweighted_gpa: f64,
-    pub gpa_delta: f64,
     pub max_gpa: f64,
 }
 
@@ -92,11 +91,9 @@ pub fn calculate_gpa(subjects: &[Subject]) -> CalculatedGPA {
         total_unweighted_gpa += subject.unweighted_gpa * subject.weight;
         total_max_gpa += subject.max_gpa * subject.weight;
     }
-    let gpa_delta = 0.3 / total_weight;
     CalculatedGPA {
         weighted_gpa: total_weighted_gpa / total_weight,
         unweighted_gpa: total_unweighted_gpa / total_weight,
-        gpa_delta,
         max_gpa: total_max_gpa / total_weight,
     }
 }
