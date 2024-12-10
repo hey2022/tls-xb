@@ -161,15 +161,19 @@ fn print_subject(subject: &Subject, cli: &Cli) {
             continue;
         }
         for evaluation_project in &evaluation_project.evaluation_project_list {
-            if !evaluation_project.score_is_null {
-                let mut row = get_evaluation_project_row(evaluation_project);
-                row.0.insert_str(0, "- ");
-                data.push(row);
+            if evaluation_project.score_is_null {
+                continue;
             }
+
+            let mut row = get_evaluation_project_row(evaluation_project);
+            row.0.insert_str(0, "- ");
+            row.4.insert_str(0, "- ");
+            data.push(row);
             if cli.tasks {
                 let mut tasks = get_evaluation_project_task_list_row(evaluation_project);
                 for task in &mut tasks {
                     task.0.insert(0, '-');
+                    task.4.insert(0, '-');
                     data.push(task.clone());
                 }
             }
@@ -214,16 +218,16 @@ fn get_evaluation_project_task_list_row(
         let row = (
             format!("- {}", learning_task.name),
             format!(
-                "{:4} / {}",
+                "{} / {}",
                 learning_task.score.unwrap_or(f64::NAN),
                 learning_task.total_score
             ),
             format!(
-                "{:.2}%",
-                learning_task.score.unwrap_or(f64::NAN) / learning_task.total_score * 100.0
+                "{}%",
+                (learning_task.score.unwrap_or(f64::NAN) / learning_task.total_score * 100.0 * 100.0).round()/100.0
             ),
             String::new(),
-            format!("- {weight:.2}%"),
+            format!("- {}%", (weight*100.0).round()/100.0),
         );
         task_rows.push(row);
     }
