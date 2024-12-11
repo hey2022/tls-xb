@@ -10,6 +10,7 @@ use colored::Colorize;
 use config::Config;
 use futures::future::join_all;
 use gpa::*;
+use self_update::cargo_crate_version;
 use semester::*;
 use std::sync::Arc;
 use subject::*;
@@ -108,6 +109,11 @@ async fn main() {
         "Calculated Unweighted GPA: {:.2}",
         calculated_gpa.unweighted_gpa
     );
+
+    let _ = tokio::task::spawn_blocking(move || {
+        println!();
+        update().map_err(|e| eprintln!("{e}")).ok();
+    }).await;
 }
 
 fn select_semester(semesters: &[Semester]) -> Semester {
@@ -286,4 +292,17 @@ async fn login(config: &mut Config) -> reqwest::Client {
         return client;
     }
     panic!("{login_limit} incorrect login attempts.");
+}
+
+fn update() -> Result<(), Box<dyn (::std::error::Error)>> {
+    let status = self_update::backends::github::Update::configure()
+        .repo_owner("hey2022")
+        .repo_name("tls-xb")
+        .bin_name("tls-xb")
+        .show_download_progress(true)
+        .current_version(cargo_crate_version!())
+        .build()?
+        .update()?;
+    println!("Update status: `{}`!", status.version());
+    Ok(())
 }

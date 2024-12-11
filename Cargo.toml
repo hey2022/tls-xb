@@ -29,6 +29,7 @@ itertools = "0.13.0"
 md5 = "0.7.0"
 reqwest = { version = "0.12.9", default-features = false, features = ["json", "cookies", "rustls-tls"] }
 rpassword = "7.3.1"
+self_update = {version = "0.41.0", features = ["archive-tar", "archive-zip", "compression-flate2", "compression-zip-deflate"]}
 serde = { version = "1.0.215", features = ["derive"] }
 serde_json = "1.0.133"
 tabled = { version = "0.17", features = ["ansi"] }
