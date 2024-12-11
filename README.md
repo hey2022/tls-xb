@@ -30,7 +30,8 @@ precompiled binaries for:
 
 - Windows
    - [Installer](https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-x86_64-pc-windows-msvc.msi)
-   - [Executable](https://github.com/hey2022/tls-xb/releases/download/v0.3.5/tls-xb-x86_64-pc-windows-msvc.zip)
+   - [Executable](https://github.com/hey2022/tls-xb/releases/download/v0.3.6/tls-xb-x86_64-pc-windows-msvc.zip)
+   <!-- should be modified after each release -->
 - macOS
    - [Apple Silicon](https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-aarch64-apple-darwin.tar.xz)
    - [Intel](https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-x86_64-apple-darwin.tar.xz)
