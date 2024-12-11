@@ -139,7 +139,7 @@ fn print_subject(subject: &Subject, cli: &Cli) {
     }
     let mut data = vec![(
         colorize(&subject.subject_name, &subject.score_level),
-        format!("{}", (subject.total_score*10.0).round()/10.0),
+        format!("{}", (subject.total_score * 10.0).round() / 10.0),
         subject.score_level.to_string(),
         subject.gpa.to_string(),
         subject.score_mapping_list_id.to_string() + if subject.elective { " Elective" } else { "" },
@@ -151,7 +151,7 @@ fn print_subject(subject: &Subject, cli: &Cli) {
         let row = get_evaluation_project_row(evaluation_project);
         data.push(row);
         if cli.tasks {
-            let tasks = get_evaluation_project_task_list_row(evaluation_project);
+            let tasks = get_evaluation_project_task_list_row(subject, evaluation_project);
             for task in tasks {
                 data.push(task);
             }
@@ -170,7 +170,7 @@ fn print_subject(subject: &Subject, cli: &Cli) {
             row.4.insert_str(0, "- ");
             data.push(row);
             if cli.tasks {
-                let mut tasks = get_evaluation_project_task_list_row(evaluation_project);
+                let mut tasks = get_evaluation_project_task_list_row(subject, evaluation_project);
                 for task in &mut tasks {
                     task.0.insert(0, '-');
                     task.4.insert(0, '-');
@@ -194,17 +194,19 @@ fn get_evaluation_project_row(
             &evaluation_project.evaluation_project_e_name,
             &evaluation_project.score_level,
         ),
-        format!("{}", (evaluation_project.score*10.0).round()/10.0),
+        format!("{}", (evaluation_project.score * 10.0).round() / 10.0),
         evaluation_project.score_level.to_string(),
         evaluation_project.gpa.to_string(),
         format!(
             "{}% ({}%)",
-            (evaluation_project.adjusted_proportion*100.0).round()/100.0, (evaluation_project.proportion*100.0).round()/100.0
+            (evaluation_project.adjusted_proportion * 100.0).round() / 100.0,
+            (evaluation_project.proportion * 100.0).round() / 100.0
         ),
     )
 }
 
 fn get_evaluation_project_task_list_row(
+    subject: &Subject,
     evaluation_project: &EvaluationProject,
 ) -> Vec<(String, String, String, String, String)> {
     let mut task_rows = Vec::new();
@@ -215,19 +217,26 @@ fn get_evaluation_project_task_list_row(
         .collect();
     for learning_task in &learning_tasks {
         let weight = evaluation_project.adjusted_proportion / learning_tasks.len() as f64;
+        let score =
+            (learning_task.score.unwrap_or(f64::NAN) / learning_task.total_score * 100.0 * 100.0)
+                .round()
+                / 100.0;
         let row = (
-            format!("- {}", learning_task.name),
+            format!(
+                "- {}",
+                colorize(
+                    &learning_task.name,
+                    &score_level_from_score(score, &subject.score_mapping_list)
+                )
+            ),
             format!(
                 "{} / {}",
                 learning_task.score.unwrap_or(f64::NAN),
                 learning_task.total_score
             ),
-            format!(
-                "{}%",
-                (learning_task.score.unwrap_or(f64::NAN) / learning_task.total_score * 100.0 * 100.0).round()/100.0
-            ),
+            format!("{score}%"),
             String::new(),
-            format!("- {}%", (weight*100.0).round()/100.0),
+            format!("- {}%", (weight * 100.0).round() / 100.0),
         );
         task_rows.push(row);
     }
