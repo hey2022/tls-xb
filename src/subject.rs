@@ -29,6 +29,7 @@ pub struct Subject {
     pub total_score: f64,
     pub evaluation_projects: Vec<EvaluationProject>,
     pub score_mapping_list_id: ScoreMappingId,
+    pub score_mapping_list: Vec<ScoreMappingConfig>,
     pub gpa: f64,
     pub max_gpa: f64,
     pub unweighted_gpa: f64,
@@ -47,14 +48,14 @@ pub async fn get_subject(
     let evaluation_projects = get_subject_evaluation_projects(client, &subject_detail).await;
     let total_score = get_subject_score(&evaluation_projects);
     let score_mapping_list_id = get_score_mapping_list_id(&subject_detail);
-    let score_mapping_list = &score_mapping_lists[&score_mapping_list_id];
-    let gpa = gpa_from_score(total_score, score_mapping_list);
-    let max_gpa = gpa_from_score(100.0, score_mapping_list);
+    let score_mapping_list = score_mapping_lists[&score_mapping_list_id].clone();
+    let gpa = gpa_from_score(total_score, &score_mapping_list);
+    let max_gpa = gpa_from_score(100.0, &score_mapping_list);
     let unweighted_gpa = gpa_from_score(
         total_score,
         &score_mapping_lists[&ScoreMappingId::NonWeighted],
     );
-    let score_level = score_level_from_score(total_score, score_mapping_list);
+    let score_level = score_level_from_score(total_score, &score_mapping_list);
     Subject {
         subject_name: subject_detail.subject_name,
         subject_id,
@@ -62,6 +63,7 @@ pub async fn get_subject(
         total_score,
         evaluation_projects,
         score_mapping_list_id,
+        score_mapping_list,
         gpa,
         max_gpa,
         unweighted_gpa,
