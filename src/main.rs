@@ -167,11 +167,13 @@ fn print_subject(subject: &Subject, cli: &Cli) {
 
             let mut row = get_evaluation_project_row(evaluation_project);
             row.0.insert_str(0, "- ");
+            row.4.insert_str(0, "- ");
             data.push(row);
             if cli.tasks {
                 let mut tasks = get_evaluation_project_task_list_row(subject, evaluation_project);
                 for task in &mut tasks {
                     task.0.insert(0, '-');
+                    task.4.insert(0, '-');
                     data.push(task.clone());
                 }
             }
