@@ -17,3 +17,5 @@ pr-run-mode = "plan"
 install-updater = false
 # Path that installers should place binaries in
 install-path = "CARGO_HOME"
+# Set unix-archive format
+unix-archive = ".tar.gz"
