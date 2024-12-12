@@ -50,7 +50,8 @@ cargo install --git https://github.com/hey2022/tls-xb.git
 
 ## Update
 
-To update tls-xb simply reinstall a newer version.
+- To update tls-xb simply reinstall a newer version.
+- Since v0.4.0: `tls-xb` will automatically check and prompt for updates after the program is run.
 
 ## Development
 
