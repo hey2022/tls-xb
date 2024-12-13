@@ -9,6 +9,9 @@ tls-xb is a cli tool that fetches scores and GPA from [Tsinglan Xiaobao](https:/
 - View scores from previous semesters.
 - Color coded scores depending on performance.
 - Tabled output.
+- Tasks (`-t`, `--tasks`)
+    - View task scores, even for unreleased tasks.
+    - View proportion of each individual task.
 
 ## Prerequisites
 
