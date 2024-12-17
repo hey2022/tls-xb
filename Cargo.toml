@@ -23,9 +23,11 @@ chrono = "0.4.39"
 clap = { version = "4.5.23", features = ["derive"] }
 colored = "2.1.0"
 confy = "0.6.1"
+env_logger = "0.11.5"
 futures = "0.3.31"
 image = { version = "0.25.5", default-features = false, features = ["rayon", "png"]}
 itertools = "0.13.0"
+log = "0.4.22"
 md5 = "0.7.0"
 reqwest = { version = "0.12.9", default-features = false, features = ["json", "cookies", "rustls-tls"] }
 rpassword = "7.3.1"

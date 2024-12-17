@@ -4,6 +4,7 @@ mod gpa;
 mod semester;
 mod subject;
 
+use log::info;
 use clap::{Parser, Subcommand};
 use client::LoginError;
 use colored::Colorize;
@@ -36,6 +37,8 @@ enum Commands {
 
 #[tokio::main]
 async fn main() {
+    env_logger::init();
+
     let cli = Cli::parse();
     let mut config;
     if let Some(command) = &cli.command {
