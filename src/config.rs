@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
-use std::io;
-use std::io::Write;
 use std::time::SystemTime;
+
+use crate::prompt_input;
 
 #[derive(Deserialize, Serialize, Default)]
 pub struct Config {
@@ -11,13 +11,7 @@ pub struct Config {
 }
 
 pub fn login() -> Config {
-    print!("Username: ");
-    io::stdout().flush().expect("Unable to flush stdout");
-    let mut name = String::new();
-    io::stdin()
-        .read_line(&mut name)
-        .expect("Failed to read line");
-    name = name.trim().to_string();
+    let name = prompt_input!("Username: ");
     let password = rpassword::prompt_password("Password: ").unwrap();
     let timestamp = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)

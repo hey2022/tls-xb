@@ -1,7 +1,6 @@
-use crate::config::Config;
+use crate::{config::Config, prompt_input};
 use base64::Engine as _;
 use serde::Serialize;
-use text_io::read;
 
 #[derive(Serialize)]
 struct Payload {
@@ -70,7 +69,5 @@ pub async fn get_captcha(client: &reqwest::Client) -> String {
     print!("\x1B[2J"); // clear terminal screen
     viuer::print(&image, &conf).expect("Failed to print image");
 
-    print!("\nCaptcha: ");
-    let captcha = read!();
-    captcha
+    prompt_input!("\nCaptacha: ")
 }
