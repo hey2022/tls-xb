@@ -1,16 +1,17 @@
 mod client;
 mod config;
 mod gpa;
+mod macros;
 mod semester;
 mod subject;
 
-use log::info;
 use clap::{Parser, Subcommand};
 use client::LoginError;
 use colored::Colorize;
 use config::Config;
 use futures::future::join_all;
 use gpa::*;
+use log::info;
 use semester::*;
 use std::sync::Arc;
 use subject::*;
@@ -18,7 +19,6 @@ use tabled::{
     settings::{object::Rows, Remove, Style},
     Table,
 };
-use text_io::read;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -127,9 +127,7 @@ fn select_semester(semesters: &[Semester]) -> Semester {
             current_semester = i;
         }
     }
-    print!("Choose a semester [{current_semester}]: ");
-    let mut input: String = read!("{}\n");
-    input = input.trim().to_string();
+    let input = prompt_input!("Choose a semester [{}]: ", current_semester);
     if !input.is_empty() {
         current_semester = input.parse().expect("Input not an integer");
     }
