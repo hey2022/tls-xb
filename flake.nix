@@ -52,6 +52,20 @@
           };
     };
 
+    packages = forEachSupportedSystem ({pkgs}: let
+      cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
+    in {
+      default = pkgs.rustPlatform.buildRustPackage {
+        pname = cargoToml.package.name;
+        version = "${cargoToml.package.version}+${self.lastModifiedDate}.${self.shortRev}";
+
+        src = ./.;
+        cargoLock = {
+          lockFile = ./Cargo.lock;
+        };
+      };
+    });
+
     devShells = forEachSupportedSystem (
       {pkgs}: {
         default = pkgs.mkShell {
