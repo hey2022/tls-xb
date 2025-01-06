@@ -50,6 +50,10 @@ To install `tls-xb` to your NixOS/Home Manager configuration, add the following 
 inputs.tls-xb.packages.${pkgs.stdenv.hostPlatform.system}.default
 ```
 
+### Install script
+
+The [release page](https://github.com/hey2022/tls-xb/releases/latest) has instructions for running the install script.
+
 ### From binaries
 
 The [release page](https://github.com/hey2022/tls-xb/releases) contains
