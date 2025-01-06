@@ -4,13 +4,13 @@ mod gpa;
 mod semester;
 mod subject;
 
-use log::info;
 use clap::{Parser, Subcommand};
 use client::LoginError;
 use colored::Colorize;
 use config::Config;
 use futures::future::join_all;
 use gpa::*;
+use log::info;
 use semester::*;
 use std::sync::Arc;
 use subject::*;
@@ -108,8 +108,10 @@ async fn main() {
         calculated_gpa.weighted_gpa / calculated_gpa.max_gpa * 100.0
     );
     println!(
-        "Calculated Unweighted GPA: {:.2}",
-        calculated_gpa.unweighted_gpa
+        "Calculated Unweighted GPA: {:.2} / {:.2} ({:.1}%)",
+        calculated_gpa.unweighted_gpa,
+        calculated_gpa.unweighted_max_gpa,
+        calculated_gpa.unweighted_gpa / calculated_gpa.unweighted_max_gpa * 100.0
     );
 }
 

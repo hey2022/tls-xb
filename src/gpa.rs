@@ -76,15 +76,16 @@ pub fn score_level_from_score(
 
 pub struct CalculatedGPA {
     pub weighted_gpa: f64,
-    pub unweighted_gpa: f64,
     pub max_gpa: f64,
+    pub unweighted_gpa: f64,
+    pub unweighted_max_gpa: f64,
 }
 
 pub fn calculate_gpa(subjects: &[Subject]) -> CalculatedGPA {
     let mut total_weight = 0.0;
     let mut total_weighted_gpa = 0.0;
-    let mut total_unweighted_gpa = 0.0;
     let mut total_max_gpa = 0.0;
+    let mut total_unweighted_gpa = 0.0;
     for subject in subjects.iter().filter(|subject| !subject.gpa.is_nan()) {
         total_weight += subject.weight;
         total_weighted_gpa += subject.gpa * subject.weight;
@@ -95,6 +96,11 @@ pub fn calculate_gpa(subjects: &[Subject]) -> CalculatedGPA {
         weighted_gpa: total_weighted_gpa / total_weight,
         unweighted_gpa: total_unweighted_gpa / total_weight,
         max_gpa: total_max_gpa / total_weight,
+        unweighted_max_gpa: if subjects.is_empty() {
+            f64::NAN
+        } else {
+            subjects.first().unwrap().unweighted_max_gpa
+        },
     }
 }
 

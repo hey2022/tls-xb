@@ -33,6 +33,7 @@ pub struct Subject {
     pub gpa: f64,
     pub max_gpa: f64,
     pub unweighted_gpa: f64,
+    pub unweighted_max_gpa: f64,
     pub score_level: String,
     pub elective: bool,
     pub weight: f64,
@@ -55,6 +56,8 @@ pub async fn get_subject(
         total_score,
         &score_mapping_lists[&ScoreMappingId::NonWeighted],
     );
+    let unweighted_max_gpa =
+        gpa_from_score(100.0, &score_mapping_lists[&ScoreMappingId::NonWeighted]);
     let score_level = score_level_from_score(total_score, &score_mapping_list);
     Subject {
         subject_name: subject_detail.subject_name,
@@ -67,6 +70,7 @@ pub async fn get_subject(
         gpa,
         max_gpa,
         unweighted_gpa,
+        unweighted_max_gpa,
         score_level,
         elective: false,
         weight: 1.0,
