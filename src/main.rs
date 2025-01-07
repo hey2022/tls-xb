@@ -38,19 +38,20 @@ enum Commands {
 #[tokio::main]
 async fn main() {
     env_logger::init();
-
     let cli = Cli::parse();
     let mut config;
-    if let Some(command) = &cli.command {
-        match command {
+    let client = match &cli.command {
+        Some(command) => match command {
             Commands::Login => {
                 config = config::login();
-                login(&mut config).await;
+                login(&mut config).await
             }
+        },
+        None => {
+            config = config::get_config();
+            login(&mut config).await
         }
-    }
-    config = config::get_config();
-    let client = login(&mut config).await;
+    };
     let client = Arc::new(client);
 
     println!(":: Fetching semesters...");
@@ -278,7 +279,6 @@ async fn login(config: &mut Config) -> reqwest::Client {
         match client {
             Ok(client) => {
                 config::save_config(config);
-                println!("Successfully logined and saved.");
                 return client;
             }
             Err(LoginError::IncorrectLogin(msg)) => {
@@ -298,7 +298,6 @@ async fn login(config: &mut Config) -> reqwest::Client {
     }
     if let Ok(client) = client::login(config).await {
         config::save_config(config);
-        println!("Successfully logined and saved.");
         return client;
     }
     panic!("{login_limit} incorrect login attempts.");
