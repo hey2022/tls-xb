@@ -41,26 +41,25 @@ async fn main() {
     env_logger::init();
     let cli = Cli::parse();
     let mut config;
-    let client = Arc::new(match &cli.command {
-        Some(command) => match command {
+    let client = Arc::new(if let Some(command) = &cli.command {
+        match command {
             Commands::Login => {
                 config = config::login();
                 login(&mut config).await
             }
-        },
-        None => {
-            let config_path = get_configuration_file_path("tls-xb", "config").unwrap();
-            match fs::metadata(config_path) {
-                Ok(_) => {
-                    config = config::get_config();
-                }
-                Err(_) => {
-                    // if the config file doesn't exit, do tls-xb login.
-                    config = config::login();
-                }
-            }
-            login(&mut config).await
         }
+    } else {
+        let config_path = get_configuration_file_path("tls-xb", "config").unwrap();
+        match fs::metadata(config_path) {
+            Ok(_) => {
+                config = config::get_config();
+            }
+            Err(_) => {
+                // if the config file doesn't exit, do tls-xb login.
+                config = config::login();
+            }
+        }
+        login(&mut config).await
     });
 
     println!(":: Fetching semesters...");
