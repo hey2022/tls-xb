@@ -77,6 +77,7 @@
             cargo-edit
             cargo-watch
             rust-analyzer
+            cargo-release
           ];
 
           env = {
