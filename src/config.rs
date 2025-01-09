@@ -38,6 +38,12 @@ pub fn save_config(config: &Config) {
 }
 
 pub fn get_config() -> Config {
-    let config: Config = confy::load("tls-xb", "config").expect("Failed to get config");
-    config
+    println!(
+        ":: Getting config.toml from {}...",
+        confy::get_configuration_file_path("tls-xb", "config")
+            .unwrap()
+            .to_str()
+            .unwrap()
+    );
+    confy::load("tls-xb", "config").expect("Failed to get config")
 }

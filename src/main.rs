@@ -9,11 +9,12 @@ use clap::{Parser, Subcommand};
 use client::LoginError;
 use colored::Colorize;
 use config::Config;
+use confy::get_configuration_file_path;
 use futures::future::join_all;
 use gpa::*;
 use log::info;
 use semester::*;
-use std::sync::Arc;
+use std::{fs, sync::Arc};
 use subject::*;
 use tabled::{
     settings::{object::Rows, Remove, Style},
@@ -40,19 +41,26 @@ async fn main() {
     env_logger::init();
     let cli = Cli::parse();
     let mut config;
-    let client = match &cli.command {
-        Some(command) => match command {
+    let client = Arc::new(if let Some(command) = &cli.command {
+        match command {
             Commands::Login => {
                 config = config::login();
                 login(&mut config).await
             }
-        },
-        None => {
-            config = config::get_config();
-            login(&mut config).await
         }
-    };
-    let client = Arc::new(client);
+    } else {
+        let config_path = get_configuration_file_path("tls-xb", "config").unwrap();
+        match fs::metadata(config_path) {
+            Ok(_) => {
+                config = config::get_config();
+            }
+            Err(_) => {
+                // if the config file doesn't exit, do tls-xb login.
+                config = config::login();
+            }
+        }
+        login(&mut config).await
+    });
 
     println!(":: Fetching semesters...");
     let semesters = get_semesters(&client).await;
@@ -263,14 +271,6 @@ fn colorize(string: &str, score_level: &str) -> String {
 }
 
 async fn login(config: &mut Config) -> reqwest::Client {
-    println!(
-        ":: Getting config.toml from {}...",
-        confy::get_configuration_file_path("tls-xb", "config")
-            .unwrap()
-            .to_str()
-            .unwrap()
-    );
-
     println!(":: Logging in...");
     let mut client;
     let login_limit = 3;
