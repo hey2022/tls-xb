@@ -52,7 +52,21 @@ inputs.tls-xb.packages.${pkgs.stdenv.hostPlatform.system}.default
 
 ### Install script
 
-The [release page](https://github.com/hey2022/tls-xb/releases/latest) has instructions for running the install script.
+## Windows
+
+In the terminal, run:
+
+``` powershell
+powershell -ExecutionPolicy ByPass -c "irm https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-installer.ps1 | iex"
+```
+
+## Linux & macOS
+
+In the terminal, run:
+
+``` sh
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-installer.sh | sh
+```
 
 ### From binaries
 
