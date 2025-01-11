@@ -62,7 +62,7 @@ powershell -ExecutionPolicy ByPass -c "irm https://github.com/hey2022/tls-xb/rel
 
 ## Linux & macOS
 
-Open the terminal, and run in shell:
+In the terminal, run:
 
 ``` sh
 curl --proto '=https' --tlsv1.2 -LsSf https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-installer.sh | sh
