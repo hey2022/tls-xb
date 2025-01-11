@@ -25,6 +25,7 @@ use tabled::{
 #[command(author, version, about, long_about = None)]
 #[command(propagate_version = true)]
 struct Cli {
+    /// Display score for each task
     #[arg(short, long)]
     tasks: bool,
     #[command(subcommand)]
@@ -33,6 +34,7 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Log in to tsinglanstudent.schoolis.cn and store login info
     Login,
 }
 
