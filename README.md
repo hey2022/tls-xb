@@ -54,7 +54,7 @@ inputs.tls-xb.packages.${pkgs.stdenv.hostPlatform.system}.default
 
 ## Windows
 
-Open the terminal, and run in powershell:
+In the terminal, run:
 
 ``` powershell
 powershell -ExecutionPolicy ByPass -c "irm https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-installer.ps1 | iex"
