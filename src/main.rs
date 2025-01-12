@@ -154,6 +154,11 @@ fn select_semester(semesters: &[Semester]) -> Semester {
     semesters[current_semester].clone()
 }
 
+fn round_score(value: f64, decimal_places: u32) -> f64 {
+    let multiplier = 10f64.powi(decimal_places as i32);
+    (value * multiplier).round() / multiplier
+}
+
 fn print_subject(subject: &Subject, cli: &Cli) {
     if subject.total_score.is_nan() {
         return;
@@ -162,12 +167,9 @@ fn print_subject(subject: &Subject, cli: &Cli) {
         colorize(&subject.subject_name, &subject.score_level),
         format!(
             "{}{}",
-            (subject.total_score * 10.0).round() / 10.0,
+            round_score(subject.total_score, 1),
             if subject.extra_credit > 0.0 {
-                format!(
-                    " ({} Extra credit)",
-                    (subject.extra_credit * 100.0).round() / 100.0
-                )
+                format!(" ({} Extra credit)", round_score(subject.extra_credit, 2))
             } else {
                 String::new()
             }
@@ -228,13 +230,13 @@ fn get_evaluation_project_row(
             &evaluation_project.evaluation_project_e_name,
             &evaluation_project.score_level,
         ),
-        format!("{}", (evaluation_project.score * 10.0).round() / 10.0),
+        format!("{}", round_score(evaluation_project.score, 1)),
         evaluation_project.score_level.to_string(),
         evaluation_project.gpa.to_string(),
         format!(
             "{}% ({}%)",
-            (evaluation_project.adjusted_proportion * 100.0).round() / 100.0,
-            (evaluation_project.proportion * 100.0).round() / 100.0
+            round_score(evaluation_project.adjusted_proportion, 2),
+            round_score(evaluation_project.proportion, 2),
         ),
     )
 }
@@ -251,10 +253,10 @@ fn get_evaluation_project_task_list_row(
         .collect();
     for learning_task in &learning_tasks {
         let weight = evaluation_project.adjusted_proportion / learning_tasks.len() as f64;
-        let score =
-            (learning_task.score.unwrap_or(f64::NAN) / learning_task.total_score * 100.0 * 100.0)
-                .round()
-                / 100.0;
+        let score = round_score(
+            learning_task.score.unwrap_or(f64::NAN) / learning_task.total_score * 100.0,
+            2,
+        );
         let row = (
             format!(
                 "- {}",
@@ -270,7 +272,7 @@ fn get_evaluation_project_task_list_row(
             ),
             format!("{score}%"),
             String::new(),
-            format!("- {}%", (weight * 100.0).round() / 100.0),
+            format!("- {}%", round_score(weight, 2)),
         );
         task_rows.push(row);
     }
