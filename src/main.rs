@@ -70,6 +70,11 @@ async fn main() {
 
     println!(":: Fetching subjects...");
     let score_mapping_lists = Arc::new(default_score_mapping_lists());
+
+    let shared_client = Arc::clone(&client);
+    let subject_dynamic_scores_handle =
+        tokio::spawn(async move { get_subject_dynamic_scores(&shared_client, semester.id).await });
+
     let shared_client = Arc::clone(&client);
     let elective_class_ids_handle =
         tokio::spawn(
@@ -94,10 +99,12 @@ async fn main() {
 
     let mut subjects = Vec::new();
     let elective_class_ids = elective_class_ids_handle.await.unwrap();
+    let subject_dynamic_scores = subject_dynamic_scores_handle.await.unwrap();
     let results = join_all(handles).await;
     for result in results {
         let mut subject = result.unwrap();
         adjust_weights(&mut subject, &elective_class_ids);
+        overlay_subject(&mut subject, &subject_dynamic_scores, &score_mapping_lists);
         subjects.push(subject);
     }
 
@@ -156,7 +163,9 @@ fn print_subject(subject: &Subject, cli: &Cli) {
         format!("{}", (subject.total_score * 10.0).round() / 10.0),
         subject.score_level.to_string(),
         subject.gpa.to_string(),
-        subject.score_mapping_list_id.to_string() + if subject.elective { " Elective" } else { "" },
+        subject.score_mapping_list_id.to_string()
+            + if subject.elective { " Elective" } else { "" }
+            + if subject.in_gpa { "" } else { " (Not counted)" },
     )];
     for evaluation_project in &subject.evaluation_projects {
         if evaluation_project.score_is_null {
