@@ -57,7 +57,7 @@ inputs.tls-xb.packages.${pkgs.stdenv.hostPlatform.system}.default
 
 ### Install script
 
-## Windows
+#### Windows
 
 In the terminal, run:
 
@@ -65,7 +65,7 @@ In the terminal, run:
 powershell -ExecutionPolicy ByPass -c "irm https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-installer.ps1 | iex"
 ```
 
-## Linux & macOS
+#### Linux & macOS
 
 In the terminal, run:
 
