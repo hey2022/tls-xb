@@ -1,4 +1,4 @@
-use crate::gpa::*;
+use crate::{gpa::*, round_score};
 use chrono::{DateTime, Duration, FixedOffset};
 use itertools::Itertools;
 use serde::Deserialize;
@@ -27,6 +27,7 @@ pub struct Subject {
     pub subject_id: u64,
     pub class_id: u64,
     pub total_score: f64,
+    pub extra_credit: f64,
     pub in_gpa: bool,
     pub evaluation_projects: Vec<EvaluationProject>,
     pub score_mapping_list_id: ScoreMappingId,
@@ -65,6 +66,7 @@ pub async fn get_subject(
         subject_id,
         class_id: subject_detail.class_id,
         total_score,
+        extra_credit: 0.0,
         in_gpa: true,
         evaluation_projects,
         score_mapping_list_id,
@@ -262,9 +264,11 @@ pub fn overlay_subject(
     for dynamic_score in subject_dynamic_scores {
         if subject.class_id == dynamic_score.class_id {
             subject.in_gpa = dynamic_score.is_in_grade;
-            subject.total_score = dynamic_score.subject_score.unwrap_or(f64::NAN)
+            let new_score = dynamic_score.subject_score.unwrap_or(f64::NAN)
                 / dynamic_score.subject_total_score
                 * 100.0;
+            subject.extra_credit = new_score - round_score(subject.total_score, 1);
+            subject.total_score = new_score;
             // Definitely need to refactor this spaghetti
             subject.gpa = gpa_from_score(subject.total_score, &subject.score_mapping_list);
             subject.unweighted_gpa = gpa_from_score(
