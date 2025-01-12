@@ -160,7 +160,18 @@ fn print_subject(subject: &Subject, cli: &Cli) {
     }
     let mut data = vec![(
         colorize(&subject.subject_name, &subject.score_level),
-        format!("{}", (subject.total_score * 10.0).round() / 10.0),
+        format!(
+            "{}{}",
+            (subject.total_score * 10.0).round() / 10.0,
+            if subject.extra_credit > 0.0 {
+                format!(
+                    " ({} Extra credit)",
+                    (subject.extra_credit * 100.0).round() / 100.0
+                )
+            } else {
+                String::new()
+            }
+        ),
         subject.score_level.to_string(),
         subject.gpa.to_string(),
         subject.score_mapping_list_id.to_string()
