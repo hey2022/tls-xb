@@ -104,19 +104,8 @@ To update tls-xb simply reinstall a newer version.
 
 ## Development
 
-``` sh
-git clone https://github.com/hey2022/tls-xb.git
-cd tls-xb
-
-# Build
-cargo build
-
-# Run
-cargo run
-
-# Install
-cargo install --path .
-```
+A development shell is provided with the nix project flake,
+to enter it run `nix develop`.
 
 ## Usage
 
