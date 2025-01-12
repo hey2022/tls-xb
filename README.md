@@ -31,6 +31,9 @@ tls-xb is a cli tool that fetches scores and GPA from [Tsinglan Xiaobao](https:/
 > [!NOTE]  
 > Uses development version of tls-xb.
 
+<details>
+<summary>Click to expand</summary>
+
 Add this to your `flake.nix`
 
 ``` nix
@@ -49,6 +52,8 @@ To install `tls-xb` to your NixOS/Home Manager configuration, add the following 
 ``` nix
 inputs.tls-xb.packages.${pkgs.stdenv.hostPlatform.system}.default
 ```
+
+</details>
 
 ### Install script
 
