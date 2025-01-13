@@ -31,6 +31,9 @@ tls-xb is a cli tool that fetches scores and GPA from [Tsinglan Xiaobao](https:/
 > [!NOTE]  
 > Uses development version of tls-xb.
 
+<details>
+<summary>Click to expand</summary>
+
 Add this to your `flake.nix`
 
 ``` nix
@@ -50,9 +53,11 @@ To install `tls-xb` to your NixOS/Home Manager configuration, add the following 
 inputs.tls-xb.packages.${pkgs.stdenv.hostPlatform.system}.default
 ```
 
+</details>
+
 ### Install script
 
-## Windows
+#### Windows
 
 In the terminal, run:
 
@@ -60,7 +65,7 @@ In the terminal, run:
 powershell -ExecutionPolicy ByPass -c "irm https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-installer.ps1 | iex"
 ```
 
-## Linux & macOS
+#### Linux & macOS
 
 In the terminal, run:
 
@@ -99,21 +104,12 @@ To update tls-xb simply reinstall a newer version.
 
 ## Development
 
-``` sh
-git clone https://github.com/hey2022/tls-xb.git
-cd tls-xb
-
-# Build
-cargo build
-
-# Run
-cargo run
-
-# Install
-cargo install --path .
-```
+A development shell is provided with the nix project flake,
+to enter it run `nix develop`.
 
 ## Usage
+
+For help, run `tls-xb -h`.
 
 1. In your terminal, run `tls-xb login` to save your login details on your computer.
 1. Run `tls-xb` to run the program.
