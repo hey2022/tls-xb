@@ -28,7 +28,7 @@ pub struct Subject {
     pub class_id: u64,
     pub total_score: f64,
     pub extra_credit: f64,
-    pub in_gpa: bool,
+    pub in_gpa: bool, // Unreliable method of determining whether subject counts into gpa
     pub evaluation_projects: Vec<EvaluationProject>,
     pub score_mapping_list_id: ScoreMappingId,
     pub score_mapping_list: Vec<ScoreMappingConfig>,

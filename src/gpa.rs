@@ -86,10 +86,7 @@ pub fn calculate_gpa(subjects: &[Subject]) -> CalculatedGPA {
     let mut total_weighted_gpa = 0.0;
     let mut total_max_gpa = 0.0;
     let mut total_unweighted_gpa = 0.0;
-    for subject in subjects
-        .iter()
-        .filter(|subject| !subject.gpa.is_nan() && subject.in_gpa)
-    {
+    for subject in subjects.iter().filter(|subject| !subject.gpa.is_nan()) {
         total_weight += subject.weight;
         total_weighted_gpa += subject.gpa * subject.weight;
         total_unweighted_gpa += subject.unweighted_gpa * subject.weight;

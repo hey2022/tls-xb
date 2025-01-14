@@ -176,9 +176,7 @@ fn print_subject(subject: &Subject, cli: &Cli) {
         ),
         subject.score_level.to_string(),
         subject.gpa.to_string(),
-        subject.score_mapping_list_id.to_string()
-            + if subject.elective { " Elective" } else { "" }
-            + if subject.in_gpa { "" } else { " (Not counted)" },
+        subject.score_mapping_list_id.to_string() + if subject.elective { " Elective" } else { "" },
     )];
     for evaluation_project in &subject.evaluation_projects {
         if evaluation_project.score_is_null {
