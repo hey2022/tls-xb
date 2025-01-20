@@ -70,6 +70,11 @@ async fn main() {
 
     println!(":: Fetching subjects...");
     let score_mapping_lists = Arc::new(default_score_mapping_lists());
+
+    let shared_client = Arc::clone(&client);
+    let subject_dynamic_scores_handle =
+        tokio::spawn(async move { get_subject_dynamic_scores(&shared_client, semester.id).await });
+
     let shared_client = Arc::clone(&client);
     let elective_class_ids_handle =
         tokio::spawn(
@@ -94,10 +99,12 @@ async fn main() {
 
     let mut subjects = Vec::new();
     let elective_class_ids = elective_class_ids_handle.await.unwrap();
+    let subject_dynamic_scores = subject_dynamic_scores_handle.await.unwrap();
     let results = join_all(handles).await;
     for result in results {
         let mut subject = result.unwrap();
         adjust_weights(&mut subject, &elective_class_ids);
+        overlay_subject(&mut subject, &subject_dynamic_scores, &score_mapping_lists);
         subjects.push(subject);
     }
 
@@ -147,13 +154,26 @@ fn select_semester(semesters: &[Semester]) -> Semester {
     semesters[current_semester].clone()
 }
 
+fn round_score(value: f64, decimal_places: u32) -> f64 {
+    let multiplier = 10f64.powi(decimal_places as i32);
+    (value * multiplier).round() / multiplier
+}
+
 fn print_subject(subject: &Subject, cli: &Cli) {
     if subject.total_score.is_nan() {
         return;
     }
     let mut data = vec![(
         colorize(&subject.subject_name, &subject.score_level),
-        format!("{}", (subject.total_score * 10.0).round() / 10.0),
+        format!(
+            "{}{}",
+            round_score(subject.total_score, 1),
+            if subject.extra_credit > 0.0 {
+                format!(" ({} Extra credit)", round_score(subject.extra_credit, 2))
+            } else {
+                String::new()
+            }
+        ),
         subject.score_level.to_string(),
         subject.gpa.to_string(),
         subject.score_mapping_list_id.to_string() + if subject.elective { " Elective" } else { "" },
@@ -208,13 +228,13 @@ fn get_evaluation_project_row(
             &evaluation_project.evaluation_project_e_name,
             &evaluation_project.score_level,
         ),
-        format!("{}", (evaluation_project.score * 10.0).round() / 10.0),
+        format!("{}", round_score(evaluation_project.score, 1)),
         evaluation_project.score_level.to_string(),
         evaluation_project.gpa.to_string(),
         format!(
             "{}% ({}%)",
-            (evaluation_project.adjusted_proportion * 100.0).round() / 100.0,
-            (evaluation_project.proportion * 100.0).round() / 100.0
+            round_score(evaluation_project.adjusted_proportion, 2),
+            round_score(evaluation_project.proportion, 2),
         ),
     )
 }
@@ -231,10 +251,10 @@ fn get_evaluation_project_task_list_row(
         .collect();
     for learning_task in &learning_tasks {
         let weight = evaluation_project.adjusted_proportion / learning_tasks.len() as f64;
-        let score =
-            (learning_task.score.unwrap_or(f64::NAN) / learning_task.total_score * 100.0 * 100.0)
-                .round()
-                / 100.0;
+        let score = round_score(
+            learning_task.score.unwrap_or(f64::NAN) / learning_task.total_score * 100.0,
+            2,
+        );
         let row = (
             format!(
                 "- {}",
@@ -250,7 +270,7 @@ fn get_evaluation_project_task_list_row(
             ),
             format!("{score}%"),
             String::new(),
-            format!("- {}%", (weight * 100.0).round() / 100.0),
+            format!("- {}%", round_score(weight, 2)),
         );
         task_rows.push(row);
     }

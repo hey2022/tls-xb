@@ -1,4 +1,4 @@
-use crate::gpa::*;
+use crate::{gpa::*, round_score};
 use chrono::{DateTime, Duration, FixedOffset};
 use itertools::Itertools;
 use serde::Deserialize;
@@ -27,6 +27,8 @@ pub struct Subject {
     pub subject_id: u64,
     pub class_id: u64,
     pub total_score: f64,
+    pub extra_credit: f64,
+    pub in_gpa: bool, // Unreliable method of determining whether subject counts into gpa
     pub evaluation_projects: Vec<EvaluationProject>,
     pub score_mapping_list_id: ScoreMappingId,
     pub score_mapping_list: Vec<ScoreMappingConfig>,
@@ -64,6 +66,8 @@ pub async fn get_subject(
         subject_id,
         class_id: subject_detail.class_id,
         total_score,
+        extra_credit: 0.0,
+        in_gpa: true,
         evaluation_projects,
         score_mapping_list_id,
         score_mapping_list,
@@ -221,5 +225,61 @@ pub fn adjust_weights(subject: &mut Subject, elective_class_ids: &[u64]) {
     if elective || subject.subject_name == "C-Humanities" {
         subject.elective = elective;
         subject.weight = 0.5;
+    }
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
+pub struct SubjectDynamicScore {
+    class_id: u64,
+    class_name: String,
+    subject_id: u64,
+    subject_name: String,
+    is_in_grade: bool,
+    subject_score: Option<f64>,
+    score_mapping_id: u64,
+    subject_total_score: f64,
+}
+
+pub async fn get_subject_dynamic_scores(
+    client: &reqwest::Client,
+    semester_id: u64,
+) -> Vec<SubjectDynamicScore> {
+    let response: serde_json::Value = client
+        .get(format!("https://tsinglanstudent.schoolis.cn/api/DynamicScore/GetStuSemesterDynamicScore?semesterId={semester_id}"))
+        .send()
+        .await.unwrap()
+        .json()
+        .await.unwrap();
+    serde_json::from_value(response["data"]["studentSemesterDynamicScoreBasicDtos"].clone())
+        .expect("Failed to get semester dynamic score")
+}
+
+pub fn overlay_subject(
+    subject: &mut Subject,
+    subject_dynamic_scores: &[SubjectDynamicScore],
+    score_mapping_lists: &HashMap<ScoreMappingId, Vec<ScoreMappingConfig>>,
+) {
+    for dynamic_score in subject_dynamic_scores {
+        if subject.class_id == dynamic_score.class_id {
+            subject.in_gpa = dynamic_score.is_in_grade;
+            let new_score = dynamic_score.subject_score.unwrap_or(f64::NAN)
+                / dynamic_score.subject_total_score
+                * 100.0;
+            subject.extra_credit = new_score - round_score(subject.total_score, 1);
+            subject.total_score = new_score;
+            // Definitely need to refactor this spaghetti
+            subject.gpa = gpa_from_score(subject.total_score, &subject.score_mapping_list);
+            subject.unweighted_gpa = gpa_from_score(
+                subject.total_score,
+                &score_mapping_lists[&ScoreMappingId::NonWeighted],
+            );
+            subject.score_level =
+                score_level_from_score(subject.total_score, &subject.score_mapping_list);
+
+            // There should be only one match
+            return;
+        }
     }
 }
