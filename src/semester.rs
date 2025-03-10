@@ -1,6 +1,6 @@
+use crate::calendar::date_parser;
 use chrono::{DateTime, FixedOffset};
 use serde::Deserialize;
-use crate::calendar::date_parser;
 
 #[derive(Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]

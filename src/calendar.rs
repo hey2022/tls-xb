@@ -16,12 +16,16 @@ where
         .map_err(Error::custom)
 }
 
-type Calendar = [Block];
+#[derive(Deserialize)]
+pub struct Calendar {
+    pub blocks: Vec<Block>,
+}
+
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Block {
     pub id: u64,
-    #[serde(rename="eName")]
+    #[serde(rename = "eName")]
     pub class_name: String,
     #[serde(deserialize_with = "date_parser")]
     pub begin_time: DateTime<FixedOffset>,
@@ -29,23 +33,29 @@ pub struct Block {
     pub end_time: DateTime<FixedOffset>,
 }
 
-pub async fn get_calendar(
-    client: &reqwest::Client,
-    begin_time: DateTime<Utc>,
-    end_time: DateTime<Utc>,
-) -> Vec<Block> {
-    let begin_time_payload = begin_time.format("%Y-%m-%d").to_string();
-    let end_time_payload = end_time.format("%Y-%m-%d").to_string();
-    debug!("Calendar range: {begin_time_payload} - {end_time_payload}");
-    let payload = &serde_json::json!({"beginTime":begin_time_payload,"endTime":end_time_payload});
-    let response: serde_json::Value = client
-        .post("https://tsinglanstudent.schoolis.cn/api/Schedule/ListScheduleByParent")
-        .json(&payload)
-        .send()
-        .await
-        .unwrap()
-        .json()
-        .await
-        .unwrap();
-    serde_json::from_value(response["data"].clone()).expect("Failed to parse calendar")
+impl Calendar {
+    pub async fn new(
+        client: &reqwest::Client,
+        begin_time: DateTime<Utc>,
+        end_time: DateTime<Utc>,
+    ) -> Calendar {
+        let begin_time_payload = begin_time.format("%Y-%m-%d").to_string();
+        let end_time_payload = end_time.format("%Y-%m-%d").to_string();
+        debug!("Calendar range: {begin_time_payload} - {end_time_payload}");
+        let payload =
+            &serde_json::json!({"beginTime":begin_time_payload,"endTime":end_time_payload});
+        let response: serde_json::Value = client
+            .post("https://tsinglanstudent.schoolis.cn/api/Schedule/ListScheduleByParent")
+            .json(&payload)
+            .send()
+            .await
+            .unwrap()
+            .json()
+            .await
+            .unwrap();
+        Calendar {
+            blocks: serde_json::from_value(response["data"].clone())
+                .expect("Failed to parse calendar"),
+        }
+    }
 }

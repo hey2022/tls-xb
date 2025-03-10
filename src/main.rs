@@ -78,9 +78,7 @@ async fn main() {
 
     let shared_client = Arc::clone(&client);
     let elective_class_ids_handle =
-        tokio::spawn(
-            async move { get_elective_class_ids(&shared_client).await },
-        );
+        tokio::spawn(async move { get_elective_class_ids(&shared_client).await });
 
     println!(":: Fetching GPA...");
     let shared_client = Arc::clone(&client);

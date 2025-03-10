@@ -1,4 +1,4 @@
-use crate::{calendar::get_calendar, gpa::*, round_score};
+use crate::{calendar::Calendar, gpa::*, round_score};
 use chrono::Duration;
 use itertools::Itertools;
 use serde::Deserialize;
@@ -196,11 +196,12 @@ pub async fn get_elective_class_ids(client: &reqwest::Client) -> Vec<u64> {
     // 8 days = 6 days per cycle + 2 weekends
     let begin_time = current_time - Duration::days(8);
     let end_time = current_time + Duration::days(8);
-    let calendar = get_calendar(client, begin_time, end_time).await;
+    let calendar = Calendar::new(client, begin_time, end_time).await;
     let elective_class_ids = calendar
+        .blocks
         .iter()
         .filter(|block| block.class_name.contains("Ele"))
-        .filter_map(|block| Some(block.id))
+        .map(|block| block.id)
         .unique()
         .collect();
     elective_class_ids
