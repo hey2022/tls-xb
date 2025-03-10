@@ -2,7 +2,7 @@ use crate::{gpa::*, round_score};
 use chrono::{DateTime, Duration, FixedOffset};
 use itertools::Itertools;
 use serde::Deserialize;
-use std::{collections::HashMap, f64::NAN};
+use std::collections::HashMap;
 
 pub async fn get_subject_ids(client: &reqwest::Client, semester_id: u64) -> Vec<u64> {
     let response: serde_json::Value = client
@@ -188,7 +188,7 @@ fn get_subject_score(evaluation_projects: &[EvaluationProject]) -> f64 {
             evaluation_project.score * evaluation_project.adjusted_proportion / 100.0
         })
         .reduce(|a, b| a + b)
-        .unwrap_or(NAN)
+        .unwrap_or(f64::NAN)
 }
 
 pub async fn get_elective_class_ids(
