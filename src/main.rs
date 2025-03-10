@@ -15,7 +15,7 @@ use futures::future::join_all;
 use gpa::*;
 use log::{info, LevelFilter};
 use semester::*;
-use std::{fs, sync::Arc};
+use std::{fs, path::PathBuf, sync::Arc};
 use subject::*;
 use tabled::{
     settings::{object::Rows, Remove, Style},
@@ -44,7 +44,14 @@ enum Commands {
     Login,
     /// Export class schedule to iCalendar format
     #[clap(name = "ical")]
-    ICal,
+    ICal(ICalArgs),
+}
+
+#[derive(Parser)]
+struct ICalArgs {
+    /// Path to output the ics file
+    #[arg(short, long, value_name = "FILE")]
+    output: Option<PathBuf>,
 }
 
 #[tokio::main]
@@ -78,19 +85,23 @@ async fn main() {
     info!("Fetching semesters");
     let semesters = get_semesters(&client).await;
 
-    if let Some(command) = &cli.command {
-        if matches!(command, Commands::ICal) {
-            let semester = get_current_semester(&semesters).unwrap();
-            let calendar = calendar::Calendar::new(
-                &client,
-                semester.start_date.into(),
-                semester.end_date.into(),
-            )
-            .await
-            .export_ical();
+    if let Some(Commands::ICal(ical_args)) = &cli.command {
+        let semester = get_current_semester(&semesters).unwrap();
+        let calendar = calendar::Calendar::new(
+            &client,
+            semester.start_date.into(),
+            semester.end_date.into(),
+        )
+        .await
+        .export_ical();
+
+        if let Some(output_path) = &ical_args.output {
+            std::fs::write(output_path, calendar.to_string()).expect("Unable to write file");
+            info!("Calendar exported to: {}", output_path.display());
+        } else {
             println!("{}", calendar);
-            std::process::exit(0)
         }
+        std::process::exit(0)
     }
 
     let semester = select_semester(&semesters);
