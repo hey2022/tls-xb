@@ -37,6 +37,9 @@ struct Cli {
 enum Commands {
     /// Log in to tsinglanstudent.schoolis.cn and store login info
     Login,
+    /// Export class schedule to iCalendar format
+    #[clap(name = "ical")]
+    ICal,
 }
 
 #[tokio::main]
@@ -63,6 +66,22 @@ async fn main() {
 
     println!(":: Fetching semesters...");
     let semesters = get_semesters(&client).await;
+
+    if let Some(command) = &cli.command {
+        if matches!(command, Commands::ICal) {
+            let semester = get_current_semester(&semesters).unwrap();
+            let calendar = calendar::Calendar::new(
+                &client,
+                semester.start_date.into(),
+                semester.end_date.into(),
+            )
+            .await
+            .export_ical();
+            println!("{}", calendar);
+            std::process::exit(0)
+        }
+    }
+
     let semester = select_semester(&semesters);
 
     println!(":: Fetching subjects...");

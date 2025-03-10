@@ -25,6 +25,7 @@ colored = "2.1.0"
 confy = "0.6.1"
 env_logger = "0.11.5"
 futures = "0.3.31"
+icalendar = "0.16.13"
 image = { version = "0.25.5", default-features = false, features = ["rayon", "png"]}
 itertools = "0.13.0"
 log = "0.4.22"

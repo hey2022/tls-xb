@@ -26,3 +26,7 @@ pub async fn get_semesters(client: &reqwest::Client) -> Vec<Semester> {
         .unwrap();
     serde_json::from_value(response["data"].clone()).expect("Failed to get semesters")
 }
+
+pub fn get_current_semester(semesters: &[Semester]) -> Option<&Semester> {
+    semesters.iter().find(|s| s.is_now)
+}

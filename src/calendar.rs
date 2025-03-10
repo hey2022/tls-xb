@@ -1,4 +1,5 @@
 use chrono::{DateTime, FixedOffset, Utc};
+use icalendar::{Calendar as ical, Component, Event, EventLike};
 use log::debug;
 use serde::de::{Deserializer, Error};
 use serde::Deserialize;
@@ -57,5 +58,19 @@ impl Calendar {
             blocks: serde_json::from_value(response["data"].clone())
                 .expect("Failed to parse calendar"),
         }
+    }
+
+    pub fn export_ical(&self) -> icalendar::Calendar {
+        let mut ical = ical::new();
+        ical.name("Tsinglan Class Calendar");
+        for block in &self.blocks {
+            let event = Event::new()
+                .summary(&block.class_name)
+                .starts(block.begin_time.with_timezone(&Utc))
+                .ends(block.end_time.with_timezone(&Utc))
+                .done();
+            ical.push(event);
+        }
+        ical.done()
     }
 }
