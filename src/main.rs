@@ -13,7 +13,7 @@ use config::Config;
 use confy::get_configuration_file_path;
 use futures::future::join_all;
 use gpa::*;
-use log::info;
+use log::{info, LevelFilter};
 use semester::*;
 use std::{fs, sync::Arc};
 use subject::*;
@@ -29,6 +29,11 @@ struct Cli {
     /// Display score for each task
     #[arg(short, long)]
     tasks: bool,
+
+    /// Enable verbose output
+    #[arg(short, long)]
+    verbose: bool,
+
     #[command(subcommand)]
     command: Option<Commands>,
 }
@@ -44,8 +49,14 @@ enum Commands {
 
 #[tokio::main]
 async fn main() {
-    env_logger::init();
     let cli = Cli::parse();
+    env_logger::Builder::new()
+        .filter_level(if cli.verbose {
+            LevelFilter::Info
+        } else {
+            LevelFilter::Warn
+        })
+        .init();
     let mut config: Config;
     let client = Arc::new(match &cli.command {
         Some(Commands::Login) => {
@@ -64,7 +75,7 @@ async fn main() {
         }
     });
 
-    println!(":: Fetching semesters...");
+    info!("Fetching semesters");
     let semesters = get_semesters(&client).await;
 
     if let Some(command) = &cli.command {
@@ -84,7 +95,7 @@ async fn main() {
 
     let semester = select_semester(&semesters);
 
-    println!(":: Fetching subjects...");
+    info!("Fetching subjects");
     let score_mapping_lists = Arc::new(default_score_mapping_lists());
 
     let shared_client = Arc::clone(&client);
@@ -95,11 +106,11 @@ async fn main() {
     let elective_class_ids_handle =
         tokio::spawn(async move { get_elective_class_ids(&shared_client).await });
 
-    println!(":: Fetching GPA...");
+    info!("Fetching GPA");
     let shared_client = Arc::clone(&client);
     let gpa_handle = tokio::spawn(async move { get_gpa(&shared_client, semester.id).await });
 
-    println!(":: Fetching subject scores...");
+    info!("Fetching subject scores");
     let subject_ids = get_subject_ids(&client, semester.id).await;
     let mut handles = Vec::new();
     for subject_id in subject_ids {
@@ -307,7 +318,7 @@ fn colorize(string: &str, score_level: &str) -> String {
 }
 
 async fn login(config: &mut Config) -> reqwest::Client {
-    println!(":: Logging in...");
+    info!("Logging in");
     let mut client;
     let login_limit = 3;
     for _ in 1..=login_limit {
