@@ -43,26 +43,22 @@ enum Commands {
 async fn main() {
     env_logger::init();
     let cli = Cli::parse();
-    let mut config;
-    let client = Arc::new(if let Some(command) = &cli.command {
-        match command {
-            Commands::Login => {
-                config = config::login();
-                login(&mut config).await
-            }
+    let mut config: Config;
+    let client = Arc::new(match &cli.command {
+        Some(Commands::Login) => {
+            let mut config = config::login();
+            login(&mut config).await
         }
-    } else {
-        let config_path = get_configuration_file_path("tls-xb", "config").unwrap();
-        match fs::metadata(config_path) {
-            Ok(_) => {
-                config = config::get_config();
-            }
-            Err(_) => {
+        _ => {
+            let config_path = get_configuration_file_path("tls-xb", "config").unwrap();
+            let mut config = if fs::metadata(&config_path).is_ok() {
+                config::get_config()
+            } else {
                 // if the config file doesn't exit, do tls-xb login.
-                config = config::login();
-            }
+                config::login()
+            };
+            login(&mut config).await
         }
-        login(&mut config).await
     });
 
     println!(":: Fetching semesters...");
