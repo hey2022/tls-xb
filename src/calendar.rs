@@ -39,6 +39,7 @@ impl Calendar {
         client: &reqwest::Client,
         begin_time: DateTime<Utc>,
         end_time: DateTime<Utc>,
+        high_school: bool,
     ) -> Calendar {
         let begin_time_payload = begin_time.format("%Y-%m-%d").to_string();
         let end_time_payload = end_time.format("%Y-%m-%d").to_string();
@@ -54,10 +55,14 @@ impl Calendar {
             .json()
             .await
             .unwrap();
-        Calendar {
+        let mut calendar = Calendar {
             blocks: serde_json::from_value(response["data"].clone())
                 .expect("Failed to parse calendar"),
+        };
+        if high_school {
+            calendar.fix_high_school_blocks();
         }
+        calendar
     }
 
     pub fn export_ical(&self) -> icalendar::Calendar {
@@ -72,5 +77,24 @@ impl Calendar {
             ical.push(event);
         }
         ical.done()
+    }
+
+    fn fix_high_school_blocks(&mut self) -> &mut Self {
+        for block in &mut self.blocks {
+            let begin_time = block.begin_time.format("%H:%M").to_string();
+            let minutes_adjustment = match begin_time.as_str() {
+                "08:25" => -25, // B1: Shift 08:25 to 08:00
+                "09:15" => -35, // B2: Shift 09:15 to 08:40
+                "12:35" => -45, // B5: Shift 12:35 to 11:50
+                _ => 0,
+            };
+
+            if minutes_adjustment != 0 {
+                let duration = chrono::Duration::minutes(minutes_adjustment);
+                block.begin_time += duration;
+                block.end_time += duration;
+            }
+        }
+        self
     }
 }

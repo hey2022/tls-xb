@@ -52,6 +52,9 @@ struct ICalArgs {
     /// Path to output the ics file
     #[arg(short, long, value_name = "FILE")]
     output: Option<PathBuf>,
+    /// Fix class times for high school
+    #[arg(long)]
+    high_school: bool,
 }
 
 #[tokio::main]
@@ -91,6 +94,7 @@ async fn main() {
             &client,
             semester.start_date.into(),
             semester.end_date.into(),
+            ical_args.high_school,
         )
         .await
         .export_ical();

@@ -196,7 +196,7 @@ pub async fn get_elective_class_ids(client: &reqwest::Client) -> Vec<u64> {
     // 8 days = 6 days per cycle + 2 weekends
     let begin_time = current_time - Duration::days(8);
     let end_time = current_time + Duration::days(8);
-    let calendar = Calendar::new(client, begin_time, end_time).await;
+    let calendar = Calendar::new(client, begin_time, end_time, false).await;
     let elective_class_ids = calendar
         .blocks
         .iter()
