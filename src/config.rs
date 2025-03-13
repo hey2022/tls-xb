@@ -1,3 +1,4 @@
+use log::info;
 use serde::{Deserialize, Serialize};
 use std::time::SystemTime;
 
@@ -38,8 +39,8 @@ pub fn save_config(config: &Config) {
 }
 
 pub fn get_config() -> Config {
-    println!(
-        ":: Getting config.toml from {}...",
+    info!(
+        "Getting config.toml from {}",
         confy::get_configuration_file_path("tls-xb", "config")
             .unwrap()
             .to_str()

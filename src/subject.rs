@@ -1,5 +1,5 @@
-use crate::{gpa::*, round_score};
-use chrono::{DateTime, Duration, FixedOffset};
+use crate::{calendar::Calendar, gpa::*, round_score};
+use chrono::Duration;
 use itertools::Itertools;
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -191,30 +191,17 @@ fn get_subject_score(evaluation_projects: &[EvaluationProject]) -> f64 {
         .unwrap_or(f64::NAN)
 }
 
-pub async fn get_elective_class_ids(
-    client: &reqwest::Client,
-    begin_time: DateTime<FixedOffset>,
-) -> Vec<u64> {
-    let begin_time_payload = begin_time.format("%Y-%m-%d").to_string();
+pub async fn get_elective_class_ids(client: &reqwest::Client) -> Vec<u64> {
+    let current_time = chrono::Utc::now();
     // 8 days = 6 days per cycle + 2 weekends
-    let end_time_payload = (begin_time + Duration::days(8))
-        .format("%Y-%m-%d")
-        .to_string();
-    let payload = &serde_json::json!({"beginTime":begin_time_payload,"endTime":end_time_payload});
-    let response: serde_json::Value = client
-        .post("https://tsinglanstudent.schoolis.cn/api/Schedule/ListScheduleByParent")
-        .json(&payload)
-        .send()
-        .await
-        .unwrap()
-        .json()
-        .await
-        .unwrap();
-    let blocks = response["data"].as_array().unwrap();
-    let elective_class_ids = blocks
+    let begin_time = current_time - Duration::days(8);
+    let end_time = current_time + Duration::days(8);
+    let calendar = Calendar::new(client, begin_time, end_time, false).await;
+    let elective_class_ids = calendar
+        .blocks
         .iter()
-        .filter(|block| block["classInfo"]["classEName"].to_string().contains("Ele"))
-        .filter_map(|block| block["classInfo"]["id"].as_u64())
+        .filter(|block| block.class_name.contains("Ele"))
+        .map(|block| block.id)
         .unique()
         .collect();
     elective_class_ids
