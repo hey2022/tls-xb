@@ -1,3 +1,4 @@
+mod calendar;
 mod client;
 mod config;
 mod gpa;
@@ -12,9 +13,9 @@ use config::Config;
 use confy::get_configuration_file_path;
 use futures::future::join_all;
 use gpa::*;
-use log::info;
+use log::{info, LevelFilter};
 use semester::*;
-use std::{fs, sync::Arc};
+use std::{fs, path::PathBuf, sync::Arc};
 use subject::*;
 use tabled::{
     settings::{object::Rows, Remove, Style},
@@ -28,6 +29,11 @@ struct Cli {
     /// Display score for each task
     #[arg(short, long)]
     tasks: bool,
+
+    /// Enable verbose output
+    #[arg(short, long)]
+    verbose: bool,
+
     #[command(subcommand)]
     command: Option<Commands>,
 }
@@ -36,39 +42,75 @@ struct Cli {
 enum Commands {
     /// Log in to tsinglanstudent.schoolis.cn and store login info
     Login,
+    /// Export class schedule to iCalendar format
+    #[clap(name = "ical")]
+    ICal(ICalArgs),
+}
+
+#[derive(Parser)]
+struct ICalArgs {
+    /// Path to output the ics file
+    #[arg(short, long, value_name = "FILE")]
+    output: Option<PathBuf>,
+    /// Fix class times for high school
+    #[arg(long)]
+    high_school: bool,
 }
 
 #[tokio::main]
 async fn main() {
-    env_logger::init();
     let cli = Cli::parse();
-    let mut config;
-    let client = Arc::new(if let Some(command) = &cli.command {
-        match command {
-            Commands::Login => {
-                config = config::login();
-                login(&mut config).await
-            }
+    env_logger::Builder::new()
+        .filter_level(if cli.verbose {
+            LevelFilter::Info
+        } else {
+            LevelFilter::Warn
+        })
+        .init();
+    let mut config: Config;
+    let client = Arc::new(match &cli.command {
+        Some(Commands::Login) => {
+            let mut config = config::login();
+            login(&mut config).await
         }
-    } else {
-        let config_path = get_configuration_file_path("tls-xb", "config").unwrap();
-        match fs::metadata(config_path) {
-            Ok(_) => {
-                config = config::get_config();
-            }
-            Err(_) => {
+        _ => {
+            let config_path = get_configuration_file_path("tls-xb", "config").unwrap();
+            let mut config = if fs::metadata(&config_path).is_ok() {
+                config::get_config()
+            } else {
                 // if the config file doesn't exit, do tls-xb login.
-                config = config::login();
-            }
+                config::login()
+            };
+            login(&mut config).await
         }
-        login(&mut config).await
     });
 
-    println!(":: Fetching semesters...");
+    info!("Fetching semesters");
     let semesters = get_semesters(&client).await;
+
+    if let Some(Commands::ICal(ical_args)) = &cli.command {
+        let semester = get_current_semester(&semesters).unwrap();
+        let calendar = calendar::Calendar::new(
+            &client,
+            semester.start_date.into(),
+            semester.end_date.into(),
+            ical_args.high_school,
+        )
+        .await
+        .export_ical();
+
+        if let Some(output_path) = &ical_args.output {
+            std::fs::write(output_path, calendar.to_string()).expect("Unable to write file");
+            info!("Calendar exported to: {}", output_path.display());
+        } else {
+            println!("{}", calendar);
+        }
+        std::process::exit(0)
+    }
+
     let semester = select_semester(&semesters);
 
-    println!(":: Fetching subjects...");
+    info!("Fetching subjects");
     let score_mapping_lists = Arc::new(default_score_mapping_lists());
 
     let shared_client = Arc::clone(&client);
@@ -77,15 +119,13 @@ async fn main() {
 
     let shared_client = Arc::clone(&client);
     let elective_class_ids_handle =
-        tokio::spawn(
-            async move { get_elective_class_ids(&shared_client, semester.start_date).await },
-        );
+        tokio::spawn(async move { get_elective_class_ids(&shared_client).await });
 
-    println!(":: Fetching GPA...");
+    info!("Fetching GPA");
     let shared_client = Arc::clone(&client);
     let gpa_handle = tokio::spawn(async move { get_gpa(&shared_client, semester.id).await });
 
-    println!(":: Fetching subject scores...");
+    info!("Fetching subject scores");
     let subject_ids = get_subject_ids(&client, semester.id).await;
     let mut handles = Vec::new();
     for subject_id in subject_ids {
@@ -293,7 +333,7 @@ fn colorize(string: &str, score_level: &str) -> String {
 }
 
 async fn login(config: &mut Config) -> reqwest::Client {
-    println!(":: Logging in...");
+    info!("Logging in");
     let mut client;
     let login_limit = 3;
     for _ in 1..=login_limit {
