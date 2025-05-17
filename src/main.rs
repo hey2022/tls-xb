@@ -9,7 +9,7 @@ mod subject;
 use clap::{Parser, Subcommand};
 use client::LoginError;
 use colored::Colorize;
-use config::Config;
+use config::Login;
 use confy::get_configuration_file_path;
 use futures::future::join_all;
 use gpa::*;
@@ -67,18 +67,17 @@ async fn main() {
             LevelFilter::Warn
         })
         .init();
-    let mut config: Config;
     let client = Arc::new(match &cli.command {
         Some(Commands::Login) => {
             let mut config = config::login();
             login(&mut config).await
         }
         _ => {
-            let config_path = get_configuration_file_path("tls-xb", "config").unwrap();
-            let mut config = if fs::metadata(&config_path).is_ok() {
-                config::get_config()
+            let login_path = get_configuration_file_path("tls-xb", "login").unwrap();
+            let mut login_info = if fs::metadata(&login_path).is_ok() {
+                config::get_login()
             } else {
-                // if the config file doesn't exit, do tls-xb login.
+                // if the login file doesn't exit, do tls-xb login.
                 config::login()
             };
             login(&mut config).await
@@ -332,7 +331,7 @@ fn colorize(string: &str, score_level: &str) -> String {
     string.color(color).to_string()
 }
 
-async fn login(config: &mut Config) -> reqwest::Client {
+async fn login(config: &mut Login) -> reqwest::Client {
     info!("Logging in");
     let mut client;
     let login_limit = 3;
@@ -340,7 +339,7 @@ async fn login(config: &mut Config) -> reqwest::Client {
         client = client::login(config).await;
         match client {
             Ok(client) => {
-                config::save_config(config);
+                config::save_login(config);
                 return client;
             }
             Err(LoginError::IncorrectLogin(msg)) => {
@@ -359,7 +358,7 @@ async fn login(config: &mut Config) -> reqwest::Client {
         }
     }
     if let Ok(client) = client::login(config).await {
-        config::save_config(config);
+        config::save_login(config);
         return client;
     }
     panic!("{login_limit} incorrect login attempts.");
