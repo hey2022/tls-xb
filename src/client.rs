@@ -1,4 +1,4 @@
-use crate::{config::Config, prompt_input};
+use crate::{config::Login, prompt_input};
 use base64::Engine as _;
 use serde::Serialize;
 
@@ -15,7 +15,7 @@ pub enum LoginError {
     ErrorCode((String, i32)),
 }
 
-pub async fn login(config: &Config) -> Result<reqwest::Client, LoginError> {
+pub async fn login(config: &Login) -> Result<reqwest::Client, LoginError> {
     let client = reqwest::Client::builder()
         .cookie_store(true)
         .build()
