@@ -9,7 +9,7 @@ mod subject;
 use clap::{Parser, Subcommand};
 use client::LoginError;
 use colored::Colorize;
-use config::Login;
+use config::{Config, Login};
 use confy::get_configuration_file_path;
 use futures::future::join_all;
 use gpa::*;
@@ -74,13 +74,19 @@ async fn main() {
         }
         _ => {
             let login_path = get_configuration_file_path("tls-xb", "login").unwrap();
+            let config_path = get_configuration_file_path("tls-xb", "config").unwrap();
             let mut login_info = if fs::metadata(&login_path).is_ok() {
                 config::get_login()
             } else {
                 // if the login file doesn't exit, do tls-xb login.
                 config::login()
             };
-            login(&mut config).await
+            if fs::metadata(&config_path).is_err() {
+                // if the config file doesn't exit, save the default one
+                config::save_config(&Config::default());
+            }
+
+            login(&mut login_info).await
         }
     });
 
@@ -318,12 +324,14 @@ fn get_evaluation_project_task_list_row(
 
 fn colorize(string: &str, score_level: &str) -> String {
     let letter = score_level.chars().next().unwrap();
+    let color_scheme = config::get_config().colors;
     let color = match letter {
-        'A' => "green",
-        'B' => "blue",
-        'C' => "yellow",
-        'D' | 'F' => "red",
-        _ => "white",
+        'A' => color_scheme.a_color,
+        'B' => color_scheme.b_color,
+        'C' => color_scheme.c_color,
+        'D' => color_scheme.d_color,
+        'F' => color_scheme.f_color,
+        _ => color_scheme.text_color,
     };
     if score_level == "A+" || score_level == "F" {
         return string.color(color).bold().to_string();
