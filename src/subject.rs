@@ -22,6 +22,7 @@ pub async fn get_subject_ids(client: &reqwest::Client, semester_id: u64) -> Vec<
     ids
 }
 
+#[allow(dead_code)]
 pub struct Subject {
     pub subject_name: String,
     pub subject_id: u64,
