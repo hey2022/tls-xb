@@ -35,7 +35,7 @@ fn get_hashed_password(password: String, timestamp: u64) -> String {
 }
 
 pub fn save_login(config: &Login) {
-    confy::store("tls-xb", "login", config).expect("Failed to get login");
+    confy::store("tls-xb", "login", config).expect("Failed to save login");
 }
 
 pub fn get_login() -> Login {
@@ -55,6 +55,7 @@ pub struct Config {
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(default)]
 pub struct ColorScheme {
     pub a_color: String,
     pub b_color: String,
@@ -89,5 +90,5 @@ pub fn get_config() -> Config {
 }
 
 pub fn save_config(config: &Config) {
-    confy::store("tls-xb", "config", config).expect("Failed to get config");
+    confy::store("tls-xb", "config", config).expect("Failed to save config");
 }
