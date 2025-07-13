@@ -8,6 +8,10 @@
       url = "github:nix-community/fenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -18,6 +22,9 @@
         "aarch64-linux"
         "x86_64-darwin"
         "aarch64-darwin"
+      ];
+      imports = [
+        ./flake-modules/treefmt.nix
       ];
       perSystem =
         {
@@ -32,7 +39,6 @@
               inputs.fenix.overlays.default
             ];
           };
-          formatter = pkgs.nixfmt-rfc-style;
           packages =
             let
               cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
