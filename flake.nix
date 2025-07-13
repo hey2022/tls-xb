@@ -59,13 +59,14 @@
                   "rustc"
                   "rustfmt"
                 ])
+                cargo-deny
+                cargo-dist
+                cargo-edit
+                cargo-release
+                cargo-watch
                 openssl
                 pkg-config
-                cargo-deny
-                cargo-edit
-                cargo-watch
                 rust-analyzer
-                cargo-release
               ];
             };
           };
