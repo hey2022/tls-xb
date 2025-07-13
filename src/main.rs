@@ -13,13 +13,13 @@ use config::Config;
 use confy::get_configuration_file_path;
 use futures::future::join_all;
 use gpa::*;
-use log::{info, LevelFilter};
+use log::{LevelFilter, info};
 use semester::*;
 use std::{fs, path::PathBuf, sync::Arc};
 use subject::*;
 use tabled::{
-    settings::{object::Rows, Remove, Style},
     Table,
+    settings::{Remove, Style, object::Rows},
 };
 
 #[derive(Parser)]
