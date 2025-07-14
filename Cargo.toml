@@ -21,7 +21,7 @@ eula = false
 base64 = "0.22.1"
 chrono = "0.4.39"
 clap = { version = "4.5.23", features = ["derive"] }
-colored = "2.1.0"
+colored = "3.0.0"
 confy = "0.6.1"
 env_logger = "0.11.5"
 futures = "0.3.31"
