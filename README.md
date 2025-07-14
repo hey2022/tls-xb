@@ -21,7 +21,6 @@ tls-xb is a cli tool that fetches scores and GPA from [Tsinglan Xiaobao](https:/
   is needed. Terminals supporting sixel be can found [here](https://www.arewesixelyet.com).
 
   Recommended terminals:
-
   - Windows: [Windows Terminal](https://github.com/microsoft/terminal)
   - macOS: [iTerm 2](https://iterm2.com/)
   - Linux: [Kitty](https://sw.kovidgoyal.net/kitty) or [WezTerm](https://wezfurlong.org/wezterm)
@@ -115,6 +114,29 @@ For help, run `tls-xb -h`.
 
 1. In your terminal, run `tls-xb login` to save your login details on your computer.
 1. Run `tls-xb` to run the program.
+
+## Configuration
+
+You can customize the color scheme by editing `config.toml`
+in your configuration directory.
+
+| Platform | Configuration Directory                             |
+| -------- | --------------------------------------------------- |
+| Linux    | `$XDG_CONFIG_HOME/tls-xb` or `$HOME/.config/tls-xb` |
+| macOS    | `$HOME/Library/Application Support/tls-xb`          |
+| Windows  | `{FOLDERID_RoamingAppData}/tls-xb`                  |
+
+Here is the default color scheme:
+
+```toml
+[colors]
+a_color = "green"
+b_color = "blue"
+c_color = "yellow"
+d_color = "red"
+f_color = "red"
+text_color = "white"
+```
 
 ## FAQ
 
