@@ -10,8 +10,8 @@ tls-xb is a cli tool that fetches scores and GPA from [Tsinglan Xiaobao](https:/
 - Color coded scores depending on performance.
 - Tabled output.
 - Tasks (`-t`, `--tasks`)
-    - View task scores, even for unreleased tasks.
-    - View proportion of each individual task.
+  - View task scores, even for unreleased tasks.
+  - View proportion of each individual task.
 - Export school class schedule to iCalendar format
 
 ## Prerequisites
@@ -21,6 +21,7 @@ tls-xb is a cli tool that fetches scores and GPA from [Tsinglan Xiaobao](https:/
   is needed. Terminals supporting sixel be can found [here](https://www.arewesixelyet.com).
 
   Recommended terminals:
+
   - Windows: [Windows Terminal](https://github.com/microsoft/terminal)
   - macOS: [iTerm 2](https://iterm2.com/)
   - Linux: [Kitty](https://sw.kovidgoyal.net/kitty) or [WezTerm](https://wezfurlong.org/wezterm)
@@ -37,7 +38,7 @@ tls-xb is a cli tool that fetches scores and GPA from [Tsinglan Xiaobao](https:/
 
 Add this to your `flake.nix`
 
-``` nix
+```nix
 {
   inputs = {
     tls-xb = {
@@ -50,7 +51,7 @@ Add this to your `flake.nix`
 
 To install `tls-xb` to your NixOS/Home Manager configuration, add the following to your `environment.systemPackages` or `home.packages` respectively:
 
-``` nix
+```nix
 inputs.tls-xb.packages.${pkgs.stdenv.hostPlatform.system}.default
 ```
 
@@ -62,7 +63,7 @@ inputs.tls-xb.packages.${pkgs.stdenv.hostPlatform.system}.default
 
 In the terminal, run:
 
-``` powershell
+```powershell
 powershell -ExecutionPolicy ByPass -c "irm https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-installer.ps1 | iex"
 ```
 
@@ -70,7 +71,7 @@ powershell -ExecutionPolicy ByPass -c "irm https://github.com/hey2022/tls-xb/rel
 
 In the terminal, run:
 
-``` sh
+```sh
 curl --proto '=https' --tlsv1.2 -LsSf https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-installer.sh | sh
 ```
 
@@ -80,11 +81,11 @@ The [release page](https://github.com/hey2022/tls-xb/releases) contains
 precompiled binaries for:
 
 - Windows
-   - [Installer](https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-x86_64-pc-windows-msvc.msi)
-   - [Executable](https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-x86_64-pc-windows-msvc.zip)
+  - [Installer](https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-x86_64-pc-windows-msvc.msi)
+  - [Executable](https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-x86_64-pc-windows-msvc.zip)
 - macOS
-   - [Apple Silicon](https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-aarch64-apple-darwin.tar.xz)
-   - [Intel](https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-x86_64-apple-darwin.tar.xz)
+  - [Apple Silicon](https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-aarch64-apple-darwin.tar.xz)
+  - [Intel](https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-x86_64-apple-darwin.tar.xz)
 - [Linux](https://github.com/hey2022/tls-xb/releases/latest/download/tls-xb-x86_64-unknown-linux-gnu.tar.xz)
 
 ### From source
@@ -92,7 +93,7 @@ precompiled binaries for:
 tls-xb is written in [Rust](https://www.rust-lang.org),
 so the Rust [toolchain](https://rustup.rs) will be needed to compile it.
 
-``` sh
+```sh
 cargo install tls-xb
 
 # Git version
