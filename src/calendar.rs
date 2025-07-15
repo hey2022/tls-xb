@@ -1,8 +1,8 @@
 use chrono::{DateTime, FixedOffset, Utc};
 use icalendar::{Calendar as ical, Component, Event, EventLike};
 use log::debug;
-use serde::Deserialize;
 use serde::de::{Deserializer, Error};
+use serde::Deserialize;
 
 pub fn date_parser<'de, D>(deserializer: D) -> Result<DateTime<FixedOffset>, D::Error>
 where

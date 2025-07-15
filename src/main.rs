@@ -9,17 +9,17 @@ mod subject;
 use clap::{Parser, Subcommand};
 use client::LoginError;
 use colored::Colorize;
-use config::Config;
+use config::{Config, Login};
 use confy::get_configuration_file_path;
 use futures::future::join_all;
 use gpa::*;
-use log::{LevelFilter, info};
+use log::{info, LevelFilter};
 use semester::*;
 use std::{fs, path::PathBuf, sync::Arc};
 use subject::*;
 use tabled::{
+    settings::{object::Rows, Remove, Style},
     Table,
-    settings::{Remove, Style, object::Rows},
 };
 
 #[derive(Parser)]
@@ -59,6 +59,12 @@ struct ICalArgs {
 
 #[tokio::main]
 async fn main() {
+    let config_path = get_configuration_file_path("tls-xb", "config").unwrap();
+    if fs::metadata(&config_path).is_err() {
+        // if the config file doesn't exist, save the default one
+        config::save_config(&Config::default());
+    }
+    let config = config::get_config();
     let cli = Cli::parse();
     env_logger::Builder::new()
         .filter_level(if cli.verbose {
@@ -67,21 +73,21 @@ async fn main() {
             LevelFilter::Warn
         })
         .init();
-    let mut config: Config;
     let client = Arc::new(match &cli.command {
         Some(Commands::Login) => {
             let mut config = config::login();
             login(&mut config).await
         }
         _ => {
-            let config_path = get_configuration_file_path("tls-xb", "config").unwrap();
-            let mut config = if fs::metadata(&config_path).is_ok() {
-                config::get_config()
+            let login_path = get_configuration_file_path("tls-xb", "login").unwrap();
+            let mut login_info = if fs::metadata(&login_path).is_ok() {
+                config::get_login()
             } else {
-                // if the config file doesn't exit, do tls-xb login.
+                // if the login file doesn't exist, do tls-xb login.
                 config::login()
             };
-            login(&mut config).await
+
+            login(&mut login_info).await
         }
     });
 
@@ -149,7 +155,7 @@ async fn main() {
     }
 
     for subject in &subjects {
-        print_subject(subject, &cli);
+        print_subject(subject, &cli, &config);
     }
 
     let gpa = gpa_handle.await.unwrap();
@@ -199,12 +205,12 @@ fn round_score(value: f64, decimal_places: u32) -> f64 {
     (value * multiplier).round() / multiplier
 }
 
-fn print_subject(subject: &Subject, cli: &Cli) {
+fn print_subject(subject: &Subject, cli: &Cli, config: &Config) {
     if subject.total_score.is_nan() {
         return;
     }
     let mut data = vec![(
-        colorize(&subject.subject_name, &subject.score_level),
+        colorize(&subject.subject_name, &subject.score_level, &config.colors),
         format!(
             "{}{}",
             round_score(subject.total_score, 1),
@@ -222,10 +228,10 @@ fn print_subject(subject: &Subject, cli: &Cli) {
         if evaluation_project.score_is_null {
             continue;
         }
-        let row = get_evaluation_project_row(evaluation_project);
+        let row = get_evaluation_project_row(evaluation_project, config);
         data.push(row);
         if cli.tasks {
-            let tasks = get_evaluation_project_task_list_row(subject, evaluation_project);
+            let tasks = get_evaluation_project_task_list_row(subject, evaluation_project, config);
             for task in tasks {
                 data.push(task);
             }
@@ -239,12 +245,13 @@ fn print_subject(subject: &Subject, cli: &Cli) {
                 continue;
             }
 
-            let mut row = get_evaluation_project_row(evaluation_project);
+            let mut row = get_evaluation_project_row(evaluation_project, config);
             row.0.insert_str(0, "- ");
             row.4.insert_str(0, "- ");
             data.push(row);
             if cli.tasks {
-                let mut tasks = get_evaluation_project_task_list_row(subject, evaluation_project);
+                let mut tasks =
+                    get_evaluation_project_task_list_row(subject, evaluation_project, config);
                 for task in &mut tasks {
                     task.0.insert(0, '-');
                     task.4.insert(0, '-');
@@ -262,11 +269,13 @@ fn print_subject(subject: &Subject, cli: &Cli) {
 
 fn get_evaluation_project_row(
     evaluation_project: &EvaluationProject,
+    config: &Config,
 ) -> (String, String, String, String, String) {
     (
         colorize(
             &evaluation_project.evaluation_project_e_name,
             &evaluation_project.score_level,
+            &config.colors,
         ),
         format!("{}", round_score(evaluation_project.score, 1)),
         evaluation_project.score_level.to_string(),
@@ -282,6 +291,7 @@ fn get_evaluation_project_row(
 fn get_evaluation_project_task_list_row(
     subject: &Subject,
     evaluation_project: &EvaluationProject,
+    config: &Config,
 ) -> Vec<(String, String, String, String, String)> {
     let mut task_rows = Vec::new();
     let learning_tasks: Vec<&LearningTask> = evaluation_project
@@ -300,7 +310,8 @@ fn get_evaluation_project_task_list_row(
                 "- {}",
                 colorize(
                     &learning_task.name,
-                    &score_level_from_score(score, &subject.score_mapping_list)
+                    &score_level_from_score(score, &subject.score_mapping_list),
+                    &config.colors
                 )
             ),
             format!(
@@ -317,22 +328,24 @@ fn get_evaluation_project_task_list_row(
     task_rows
 }
 
-fn colorize(string: &str, score_level: &str) -> String {
+fn colorize(string: &str, score_level: &str, color_scheme: &config::ColorScheme) -> String {
     let letter = score_level.chars().next().unwrap();
     let color = match letter {
-        'A' => "green",
-        'B' => "blue",
-        'C' => "yellow",
-        'D' | 'F' => "red",
-        _ => "white",
-    };
+        'A' => &color_scheme.a_color,
+        'B' => &color_scheme.b_color,
+        'C' => &color_scheme.c_color,
+        'D' => &color_scheme.d_color,
+        'F' => &color_scheme.f_color,
+        _ => &color_scheme.text_color,
+    }
+    .as_str();
     if score_level == "A+" || score_level == "F" {
         return string.color(color).bold().to_string();
     }
     string.color(color).to_string()
 }
 
-async fn login(config: &mut Config) -> reqwest::Client {
+async fn login(config: &mut Login) -> reqwest::Client {
     info!("Logging in");
     let mut client;
     let login_limit = 3;
@@ -340,7 +353,7 @@ async fn login(config: &mut Config) -> reqwest::Client {
         client = client::login(config).await;
         match client {
             Ok(client) => {
-                config::save_config(config);
+                config::save_login(config);
                 return client;
             }
             Err(LoginError::IncorrectLogin(msg)) => {
@@ -359,7 +372,7 @@ async fn login(config: &mut Config) -> reqwest::Client {
         }
     }
     if let Ok(client) = client::login(config).await {
-        config::save_config(config);
+        config::save_login(config);
         return client;
     }
     panic!("{login_limit} incorrect login attempts.");
