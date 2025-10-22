@@ -47,8 +47,17 @@ pub fn get_score_mapping_list_id(subject_detail: &SubjectDetail) -> ScoreMapping
     ScoreMappingId::NonWeighted
 }
 
+const EXTRA_WEIGHTED_SUBJECT: [&str; 3] = [
+    "Linear Algebra",
+    "Modern Physics and Optics",
+    "Multivariable Calculus",
+];
+
 pub fn is_weighted_subject(subject_name: &str) -> bool {
-    subject_name.contains("AP") || subject_name.contains("A Level") || subject_name.contains("AS")
+    subject_name.contains("AP")
+        || subject_name.contains("A Level")
+        || subject_name.contains("AS")
+        || EXTRA_WEIGHTED_SUBJECT.contains(&subject_name)
 }
 
 pub fn gpa_from_score(total_score: f64, score_mapping_list: &[ScoreMappingConfig]) -> f64 {
