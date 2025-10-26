@@ -49,10 +49,20 @@ pub fn get_login() -> Login {
     confy::load("tls-xb", "login").expect("Failed to get login")
 }
 
-#[derive(Deserialize, Serialize, Default)]
+#[derive(Deserialize, Serialize)]
 #[serde(default)]
 pub struct Config {
     pub colors: ColorScheme,
+    pub no_table: bool,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Config {
+            colors: ColorScheme::default(),
+            no_table: false,
+        }
+    }
 }
 
 #[derive(Deserialize, Serialize)]

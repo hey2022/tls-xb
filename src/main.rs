@@ -34,6 +34,10 @@ struct Cli {
     #[arg(short, long)]
     verbose: bool,
 
+    /// Do not print scores in table format
+    #[arg(long)]
+    no_table: bool,
+
     #[command(subcommand)]
     command: Option<Commands>,
 }
@@ -206,7 +210,56 @@ fn round_score(value: f64, decimal_places: u32) -> f64 {
 }
 
 fn print_subject(subject: &Subject, cli: &Cli, config: &Config) {
+    let no_table = cli.no_table || config.no_table;
     if subject.total_score.is_nan() {
+        return;
+    }
+    if no_table {
+        println!(
+            "{}: {} ({})",
+            colorize(&subject.subject_name, &subject.score_level, &config.colors),
+            round_score(subject.total_score, 1),
+            subject.score_level.to_string()
+        );
+        for evaluation_project in &subject.evaluation_projects {
+            if evaluation_project.score_is_null {
+                continue;
+            }
+            println!(
+                "  - {}: {} ({})",
+                colorize(
+                    &evaluation_project.evaluation_project_e_name,
+                    &evaluation_project.score_level,
+                    &config.colors
+                ),
+                round_score(evaluation_project.score, 1),
+                evaluation_project.score_level.to_string()
+            );
+            if cli.tasks {
+                let learning_tasks: Vec<&LearningTask> = evaluation_project
+                    .learning_task_and_exam_list
+                    .iter()
+                    .filter(|task| task.score.is_some())
+                    .collect();
+                for learning_task in &learning_tasks {
+                    let score = round_score(
+                        learning_task.score.unwrap_or(f64::NAN) / learning_task.total_score * 100.0,
+                        2,
+                    );
+                    println!(
+                        "    - {}: {} / {} ({}%)",
+                        colorize(
+                            &learning_task.name,
+                            &score_level_from_score(score, &subject.score_mapping_list),
+                            &config.colors
+                        ),
+                        learning_task.score.unwrap_or(f64::NAN),
+                        learning_task.total_score,
+                        score
+                    );
+                }
+            }
+        }
         return;
     }
     let mut data = vec![(
