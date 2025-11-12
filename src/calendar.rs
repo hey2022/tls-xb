@@ -1,4 +1,4 @@
-use chrono::{DateTime, FixedOffset, Utc};
+use chrono::{DateTime, FixedOffset, NaiveDateTime, Utc};
 use icalendar::{Calendar as ical, Component, Event, EventLike};
 use log::debug;
 use serde::de::{Deserializer, Error};
@@ -9,12 +9,10 @@ where
     D: Deserializer<'de>,
 {
     let s = String::deserialize(deserializer)?;
-    let time = s.trim_start_matches("/Date(").trim_end_matches(")/");
-    // Bug in chrono preventing parsing "%s%3f%z"
-    let (millis, offset) = time.split_at(time.len() - 5);
-    let millis = millis.parse::<f64>().unwrap() / 1000.0;
-    DateTime::parse_from_str(format!("{millis}{offset}").as_str(), "%s%.3f%z")
-        .map_err(Error::custom)
+    let naive_datetime =
+        NaiveDateTime::parse_from_str(&s, "%Y-%m-%dT%H:%M:%S").map_err(Error::custom)?;
+    let utc8 = FixedOffset::east_opt(8 * 3600).unwrap();
+    Ok(naive_datetime.and_local_timezone(utc8).unwrap())
 }
 
 #[derive(Deserialize)]
