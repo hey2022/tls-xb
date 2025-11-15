@@ -7,6 +7,7 @@ mod semester;
 mod subject;
 
 use clap::{Parser, Subcommand};
+use clap_verbosity_flag::{InfoLevel, Verbosity, WarnLevel};
 use client::LoginError;
 use colored::Colorize;
 use config::{Config, Login};
@@ -30,9 +31,8 @@ struct Cli {
     #[arg(short, long)]
     tasks: bool,
 
-    /// Enable verbose output
-    #[arg(short, long)]
-    verbose: bool,
+    #[command(flatten)]
+    verbosity: Verbosity<WarnLevel>,
 
     #[command(subcommand)]
     command: Option<Commands>,
@@ -67,11 +67,7 @@ async fn main() {
     let config = config::get_config();
     let cli = Cli::parse();
     env_logger::Builder::new()
-        .filter_level(if cli.verbose {
-            LevelFilter::Info
-        } else {
-            LevelFilter::Warn
-        })
+        .filter_level(cli.verbosity.into())
         .init();
     let client = Arc::new(match &cli.command {
         Some(Commands::Login) => {
