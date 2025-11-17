@@ -2,7 +2,7 @@ use futures::future::join_all;
 use log::{debug, trace};
 use serde::Deserialize;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Task {
     pub id: u64,
@@ -18,7 +18,7 @@ pub struct Task {
     pub eva_projects: Vec<EvaulationProject>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct EvaulationProject {
     pub name: String,
