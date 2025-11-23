@@ -6,6 +6,7 @@ mod macros;
 mod semester;
 mod subject;
 
+use chrono::Datelike;
 use clap::{Parser, Subcommand};
 use client::LoginError;
 use colored::Colorize;
@@ -186,8 +187,8 @@ fn select_semester(semesters: &[Semester]) -> Semester {
             "{:2}: Semester {}, {}-{}",
             i,
             semester.semester,
-            semester.year,
-            semester.year + 1,
+            semester.start_date.year(),
+            semester.end_date.year()
         );
         if semester.is_now {
             current_semester = i;
