@@ -17,6 +17,7 @@ use log::{info, LevelFilter};
 use semester::*;
 use std::{fs, path::PathBuf, sync::Arc};
 use subject::*;
+use chrono::{NaiveDate, Utc};
 use tabled::{
     settings::{object::Rows, Remove, Style},
     Table,
@@ -49,12 +50,33 @@ enum Commands {
 
 #[derive(Parser)]
 struct ICalArgs {
+    /// Start date (YYYYMMDD format, e.g., 20250202)
+    start_date: Option<String>,
+    /// End date (YYYYMMDD format, e.g., 20250701)
+    end_date: Option<String>,
     /// Path to output the ics file
     #[arg(short, long, value_name = "FILE")]
     output: Option<PathBuf>,
     /// Fix class times for high school
     #[arg(long)]
     high_school: bool,
+}
+
+fn parse_date_string(date_str: &str) -> Result<chrono::DateTime<Utc>, Box<dyn std::error::Error>> {
+    if date_str.len() != 8 {
+        return Err(format!("Date string must be 8 characters long (YYYYMMDD), got {}", date_str.len()).into());
+    }
+    
+    let year: i32 = date_str[0..4].parse()?;
+    let month: u32 = date_str[4..6].parse()?;
+    let day: u32 = date_str[6..8].parse()?;
+    
+    let naive_date = NaiveDate::from_ymd_opt(year, month, day)
+        .ok_or_else(|| format!("Invalid date: {}-{:02}-{:02}", year, month, day))?;
+    
+    Ok(naive_date.and_hms_opt(0, 0, 0)
+        .ok_or("Failed to create datetime")?
+        .and_utc())
 }
 
 #[tokio::main]
@@ -95,11 +117,29 @@ async fn main() {
     let semesters = get_semesters(&client).await;
 
     if let Some(Commands::ICal(ical_args)) = &cli.command {
-        let semester = get_current_semester(&semesters).unwrap();
+        let (start_date, end_date) = if let (Some(start_str), Some(end_str)) = (&ical_args.start_date, &ical_args.end_date) {
+            // Parse date strings in YYYYMMDD format
+            let start_date = parse_date_string(start_str).unwrap_or_else(|e| {
+                eprintln!("Invalid start date format '{}': {}", start_str, e);
+                eprintln!("Expected format: YYYYMMDD (e.g., 20250202)");
+                std::process::exit(1);
+            });
+            let end_date = parse_date_string(end_str).unwrap_or_else(|e| {
+                eprintln!("Invalid end date format '{}': {}", end_str, e);
+                eprintln!("Expected format: YYYYMMDD (e.g., 20250701)");
+                std::process::exit(1);
+            });
+            (start_date, end_date)
+        } else {
+            // Fall back to semester selection if no dates provided
+            let semester = select_semester(&semesters);
+            (semester.start_date.into(), semester.end_date.into())
+        };
+        
         let calendar = calendar::Calendar::new(
             &client,
-            semester.start_date.into(),
-            semester.end_date.into(),
+            start_date,
+            end_date,
             ical_args.high_school,
         )
         .await
