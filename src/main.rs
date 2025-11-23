@@ -184,11 +184,11 @@ fn select_semester(semesters: &[Semester]) -> Semester {
     let mut current_semester = 0;
     for (i, semester) in semesters.iter().enumerate().rev() {
         println!(
-            "{:2}: Semester {}, {}-{}",
+            "{:2}: {}-{}, Semester {}",
             i,
-            semester.semester,
             semester.start_date.year(),
-            semester.end_date.year()
+            semester.end_date.year(),
+            semester.semester,
         );
         if semester.is_now {
             current_semester = i;
